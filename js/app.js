@@ -215,7 +215,7 @@ const app = {
         if (total === 0) {
             ctx.beginPath();
             ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-            ctx.strokeStyle = '#334155';
+            ctx.strokeStyle = '#ffcc80';
             ctx.lineWidth = 20;
             ctx.stroke();
             legend.innerHTML = '<span class="empty-state" style="padding:.5rem">Sin datos</span>';
@@ -223,9 +223,9 @@ const app = {
         }
 
         const data = [
-            { value: proteinCal, color: '#3b82f6', label: 'Proteinas', grams: totals.protein },
-            { value: carbsCal, color: '#f59e0b', label: 'Carbohidratos', grams: totals.carbs },
-            { value: fatCal, color: '#ef4444', label: 'Grasas', grams: totals.fat },
+            { value: proteinCal, color: '#c62828', label: 'Proteinas', grams: totals.protein },
+            { value: carbsCal, color: '#f57f17', label: 'Carbohidratos', grams: totals.carbs },
+            { value: fatCal, color: '#4e342e', label: 'Grasas', grams: totals.fat },
         ];
 
         let startAngle = -Math.PI / 2;
@@ -240,13 +240,13 @@ const app = {
             startAngle += sliceAngle;
         });
 
-        ctx.fillStyle = '#f1f5f9';
+        ctx.fillStyle = '#1a1a1a';
         ctx.font = 'bold 20px Segoe UI';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(Math.round(total), cx, cy - 8);
         ctx.font = '11px Segoe UI';
-        ctx.fillStyle = '#94a3b8';
+        ctx.fillStyle = '#8d6e63';
         ctx.fillText('kcal macros', cx, cy + 12);
 
         legend.innerHTML = data.map(d => {
@@ -537,7 +537,7 @@ const app = {
         const gap = chartW / 7;
 
         // Grid lines
-        ctx.strokeStyle = '#334155';
+        ctx.strokeStyle = '#ffcc80';
         ctx.lineWidth = 1;
         for (let i = 0; i <= 4; i++) {
             const y = padding.top + (chartH / 4) * i;
@@ -546,7 +546,7 @@ const app = {
             ctx.lineTo(canvas.width - padding.right, y);
             ctx.stroke();
 
-            ctx.fillStyle = '#64748b';
+            ctx.fillStyle = '#5d4037';
             ctx.font = '11px Segoe UI';
             ctx.textAlign = 'right';
             ctx.fillText(Math.round(maxCal - (maxCal / 4) * i), padding.left - 8, y + 4);
@@ -554,7 +554,7 @@ const app = {
 
         // Goal line
         const goalY = padding.top + chartH - (goals.calories / maxCal) * chartH;
-        ctx.strokeStyle = '#22c55e44';
+        ctx.strokeStyle = '#e6510044';
         ctx.lineWidth = 2;
         ctx.setLineDash([6, 4]);
         ctx.beginPath();
@@ -563,7 +563,7 @@ const app = {
         ctx.stroke();
         ctx.setLineDash([]);
 
-        ctx.fillStyle = '#22c55e88';
+        ctx.fillStyle = '#e6510088';
         ctx.font = '10px Segoe UI';
         ctx.textAlign = 'left';
         ctx.fillText('Meta', canvas.width - padding.right - 30, goalY - 5);
@@ -576,11 +576,11 @@ const app = {
 
             const gradient = ctx.createLinearGradient(x, y, x, padding.top + chartH);
             if (d.calories > goals.calories) {
-                gradient.addColorStop(0, '#ef4444');
-                gradient.addColorStop(1, '#ef444444');
+                gradient.addColorStop(0, '#c62828');
+                gradient.addColorStop(1, '#c6282844');
             } else {
-                gradient.addColorStop(0, '#22c55e');
-                gradient.addColorStop(1, '#22c55e44');
+                gradient.addColorStop(0, '#e65100');
+                gradient.addColorStop(1, '#e6510044');
             }
             ctx.fillStyle = gradient;
 
@@ -598,14 +598,14 @@ const app = {
 
             // Value on top
             if (d.calories > 0) {
-                ctx.fillStyle = '#f1f5f9';
+                ctx.fillStyle = '#1a1a1a';
                 ctx.font = 'bold 11px Segoe UI';
                 ctx.textAlign = 'center';
                 ctx.fillText(Math.round(d.calories), x + barWidth / 2, y - 6);
             }
 
             // Day label
-            ctx.fillStyle = '#94a3b8';
+            ctx.fillStyle = '#8d6e63';
             ctx.font = '11px Segoe UI';
             ctx.textAlign = 'center';
             const dayLabel = d.date.toLocaleDateString('es-ES', { weekday: 'short' });
@@ -897,9 +897,14 @@ const app = {
     startScanner() {
         if (this.scanner) return;
 
+        const containerWidth = document.getElementById('scannerContainer').offsetWidth;
+        const qrWidth = Math.min(250, containerWidth - 40);
+        const qrHeight = Math.min(150, Math.round(qrWidth * 0.6));
+
         const config = {
             fps: 10,
-            qrbox: { width: 250, height: 150 },
+            qrbox: { width: qrWidth, height: qrHeight },
+            aspectRatio: 1.5,
             formatsToSupport: [
                 Html5QrcodeSupportedFormats.EAN_13,
                 Html5QrcodeSupportedFormats.EAN_8,
@@ -962,10 +967,17 @@ const app = {
         const resultContainer = document.getElementById('scannerResult');
 
         resultPanel.style.display = 'flex';
+
+        const localProduct = typeof BARCODE_DATABASE !== 'undefined' && BARCODE_DATABASE[barcode];
+        if (localProduct) {
+            this.displayLocalProduct(localProduct);
+            return;
+        }
+
         resultContainer.innerHTML = `
             <div class="scanner-loading">
                 <div class="spinner"></div>
-                <p>Buscando producto...</p>
+                <p>Buscando producto en linea...</p>
             </div>
         `;
 
@@ -995,6 +1007,55 @@ const app = {
                 `;
                 this.scannedProduct = null;
             });
+    },
+
+    displayLocalProduct(product) {
+        this.scannedProduct = {
+            name: product.brand ? `${product.name}` : product.name,
+            calories: product.calories,
+            protein: product.protein,
+            carbs: product.carbs,
+            fat: product.fat,
+            portion: product.portion,
+            per100: {
+                calories: Math.round(product.calories / product.portion * 100),
+                protein: Math.round(product.protein / product.portion * 100 * 10) / 10,
+                carbs: Math.round(product.carbs / product.portion * 100 * 10) / 10,
+                fat: Math.round(product.fat / product.portion * 100 * 10) / 10
+            }
+        };
+
+        const resultContainer = document.getElementById('scannerResult');
+        resultContainer.innerHTML = `
+            <div class="scanner-product-card">
+                <div class="scanner-product-name">${this.escapeHtml(product.name)}</div>
+                ${product.brand ? `<div class="scanner-product-brand">${this.escapeHtml(product.brand)}</div>` : ''}
+                <div class="scanner-local-badge">Producto local</div>
+                <div class="scanner-nutri-grid">
+                    <div class="scanner-nutri-item highlight">
+                        <div class="scanner-nutri-value" id="scannedCal">${product.calories}</div>
+                        <div class="scanner-nutri-label">Calorias (kcal)</div>
+                    </div>
+                    <div class="scanner-nutri-item">
+                        <div class="scanner-nutri-value" id="scannedProtein">${product.protein}g</div>
+                        <div class="scanner-nutri-label">Proteinas</div>
+                    </div>
+                    <div class="scanner-nutri-item">
+                        <div class="scanner-nutri-value" id="scannedCarbs">${product.carbs}g</div>
+                        <div class="scanner-nutri-label">Carbohidratos</div>
+                    </div>
+                    <div class="scanner-nutri-item">
+                        <div class="scanner-nutri-value" id="scannedFat">${product.fat}g</div>
+                        <div class="scanner-nutri-label">Grasas</div>
+                    </div>
+                </div>
+                <div class="scanner-portion-row">
+                    <label>Porcion:</label>
+                    <input type="number" id="scannedPortion" value="${product.portion}" min="1" onchange="app.updateScannedPortion(this.value)" oninput="app.updateScannedPortion(this.value)">
+                    <span>gramos</span>
+                </div>
+            </div>
+        `;
     },
 
     displayScannedProduct(product) {

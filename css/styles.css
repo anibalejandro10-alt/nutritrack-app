@@ -1,25 +1,25 @@
 :root {
-    --primary: #22c55e;
-    --primary-dark: #16a34a;
-    --primary-light: #bbf7d0;
-    --bg: #0f172a;
-    --bg-card: #1e293b;
-    --bg-card-hover: #273548;
-    --bg-input: #334155;
-    --text: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --border: #334155;
-    --danger: #ef4444;
-    --warning: #f59e0b;
-    --info: #3b82f6;
-    --protein-color: #3b82f6;
-    --carbs-color: #f59e0b;
-    --fat-color: #ef4444;
-    --calories-color: #22c55e;
+    --primary: #e65100;
+    --primary-dark: #bf360c;
+    --primary-light: #ffe0b2;
+    --bg: #fff3e0;
+    --bg-card: #ffffff;
+    --bg-card-hover: #fff8f0;
+    --bg-input: #fff8f0;
+    --text: #1a1a1a;
+    --text-secondary: #5d4037;
+    --text-muted: #8d6e63;
+    --border: #ffcc80;
+    --danger: #c62828;
+    --warning: #e65100;
+    --info: #1565c0;
+    --protein-color: #c62828;
+    --carbs-color: #f57f17;
+    --fat-color: #4e342e;
+    --calories-color: #e65100;
     --radius: 12px;
     --radius-sm: 8px;
-    --shadow: 0 4px 6px -1px rgba(0,0,0,.3);
+    --shadow: 0 4px 6px -1px rgba(0,0,0,.1);
     --transition: .2s ease;
     --sidebar-width: 240px;
 }
@@ -94,7 +94,7 @@ body {
 
 .nav-link.active {
     color: var(--primary);
-    background: rgba(34, 197, 94, .08);
+    background: rgba(230, 81, 0, .1);
     border-left-color: var(--primary);
 }
 
@@ -271,10 +271,10 @@ body {
     height: 24px;
 }
 
-.card-calories .card-icon { background: rgba(34, 197, 94, .15); color: var(--primary); }
-.card-protein .card-icon { background: rgba(59, 130, 246, .15); color: var(--protein-color); }
-.card-carbs .card-icon { background: rgba(245, 158, 11, .15); color: var(--carbs-color); }
-.card-fat .card-icon { background: rgba(239, 68, 68, .15); color: var(--fat-color); }
+.card-calories .card-icon { background: rgba(230, 81, 0, .12); color: var(--primary); }
+.card-protein .card-icon { background: rgba(198, 40, 40, .12); color: var(--protein-color); }
+.card-carbs .card-icon { background: rgba(245, 127, 23, .12); color: var(--carbs-color); }
+.card-fat .card-icon { background: rgba(78, 52, 46, .12); color: var(--fat-color); }
 
 .card-info {
     flex: 1;
@@ -1000,7 +1000,7 @@ body {
 .calc-card.highlight {
     grid-column: 1 / -1;
     border: 1px solid var(--primary);
-    background: rgba(34, 197, 94, .05);
+    background: rgba(230, 81, 0, .06);
 }
 
 .calc-value {
@@ -1150,14 +1150,30 @@ body {
 
 #scannerReader {
     width: 100%;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 #scannerReader video {
     border-radius: var(--radius);
+    width: 100% !important;
+    max-width: 100% !important;
+    object-fit: cover;
 }
 
-#scannerReader img[alt="Info icon"] {
-    display: none;
+#scannerReader img[alt="Info icon"],
+#scannerReader br,
+#scannerReader a {
+    display: none !important;
+}
+
+#scannerReader > div {
+    max-width: 100% !important;
+}
+
+#html5-qrcode-button-camera-stop,
+#html5-qrcode-button-camera-start {
+    display: none !important;
 }
 
 .scanner-actions {
@@ -1238,6 +1254,19 @@ body {
     background: #fff;
 }
 
+.scanner-local-badge {
+    display: inline-block;
+    background: var(--primary);
+    color: #fff;
+    font-size: .7rem;
+    font-weight: 700;
+    padding: .2rem .6rem;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: .75rem;
+}
+
 .scanner-nutri-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -1309,7 +1338,7 @@ body {
     text-align: center;
     padding: 1.5rem;
     color: var(--danger);
-    background: rgba(239, 68, 68, .1);
+    background: rgba(198, 40, 40, .08);
     border-radius: var(--radius-sm);
 }
 
@@ -1396,7 +1425,7 @@ body {
 
     .sidebar.open {
         transform: translateX(0);
-        box-shadow: 4px 0 24px rgba(0,0,0,.5);
+        box-shadow: 4px 0 24px rgba(0,0,0,.3);
     }
 
     .main-content {
@@ -1470,6 +1499,70 @@ body {
         min-width: auto;
         font-size: .95rem;
     }
+
+    /* Scanner mobile */
+    .scanner-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .scanner-icon-big {
+        width: 48px;
+        height: 48px;
+    }
+
+    .scanner-instructions p {
+        font-size: .85rem;
+    }
+
+    .scanner-nutri-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: .4rem;
+    }
+
+    .scanner-nutri-value {
+        font-size: 1.1rem;
+    }
+
+    .scanner-nutri-item.highlight .scanner-nutri-value {
+        font-size: 1.3rem;
+    }
+
+    .scanner-portion-row {
+        flex-wrap: wrap;
+        gap: .5rem;
+    }
+
+    .scanner-manual-row {
+        flex-direction: column;
+        gap: .5rem;
+    }
+
+    .scanner-manual-row .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .scanner-product-image {
+        max-height: 150px;
+    }
+
+    /* Food categories mobile scroll */
+    .food-categories {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: .5rem;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .food-categories::-webkit-scrollbar {
+        display: none;
+    }
+
+    .cat-btn {
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1522,6 +1615,33 @@ body {
 
     .calc-card.highlight {
         grid-column: auto;
+    }
+
+    /* Scanner extra small */
+    .scanner-nutri-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .scanner-nutri-item.highlight {
+        grid-column: auto;
+    }
+
+    .scanner-product-name {
+        font-size: 1rem;
+    }
+
+    .scanner-result-actions .form-group {
+        width: 100%;
+    }
+
+    .scanner-portion-row {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+
+    .scanner-portion-row input {
+        width: 100%;
     }
 
     .bmi-labels {

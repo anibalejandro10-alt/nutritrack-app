@@ -237,6 +237,22 @@ const app = {
         const dailyDeficit = isDeficit ? balanceAbs : 0;
         const dailySurplus = isSurplus ? balanceAbs : 0;
 
+        // Calcular balance acumulado en todos los dias con registros
+        let cumulativeBalance = 0;
+        let cumDaysTracked = 0;
+        Storage.getAllDates().forEach(dateStr => {
+            const dayEntries = Storage.getEntries(dateStr);
+            let dayCalories = 0;
+            dayEntries.forEach(e => dayCalories += e.calories || 0);
+            const dayBurned = (Storage.getActivity(dateStr).caloriesBurned) || 0;
+            cumulativeBalance += (dayCalories - dayBurned) - tdee;
+            cumDaysTracked++;
+        });
+        const cumulativeAbs = Math.abs(Math.round(cumulativeBalance));
+        const cumulativeKg = Math.round(cumulativeAbs / KG_FAT_KCAL * 100) / 100;
+        const isCumulativeDeficit = cumulativeBalance < 0;
+        const isCumulativeSurplus = cumulativeBalance > 0;
+
         let projectionHtml = '';
         if (dailyDeficit > 0) {
             const daysPerKg = Math.round(KG_FAT_KCAL / dailyDeficit);
@@ -307,6 +323,44 @@ const app = {
 
         const goalLabel = profile.goal === 'lose' ? 'Objetivo deficit' : profile.goal === 'gain' || profile.goal === 'bulk' ? 'Objetivo superavit' : 'Mantenimiento';
 
+        let cumulativeHtml = '';
+        if (cumDaysTracked > 0) {
+            const cumColor = isCumulativeDeficit ? '#22c55e' : isCumulativeSurplus ? 'var(--danger)' : 'var(--primary)';
+            const cumSign = isCumulativeDeficit ? '-' : isCumulativeSurplus ? '+' : '';
+            const cumTypeLabel = isCumulativeDeficit ? 'Deficit acumulado' : isCumulativeSurplus ? 'Superavit acumulado' : 'En equilibrio';
+            const cumAvg = Math.round(cumulativeAbs / cumDaysTracked);
+            const cumDaysLabel = cumDaysTracked === 1 ? '1 dia registrado' : `${cumDaysTracked} dias registrados`;
+            cumulativeHtml = `
+                <div class="deficit-projection">
+                    <div class="deficit-projection-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        Acumulado total — ${cumDaysLabel}
+                    </div>
+                    <div class="deficit-projection-grid">
+                        <div>
+                            <div class="deficit-proj-item">
+                                <span class="deficit-proj-label">${cumTypeLabel}</span>
+                                <span class="deficit-proj-value" style="color:${cumColor}">${cumSign}${cumulativeAbs} kcal</span>
+                            </div>
+                            <div class="deficit-proj-item">
+                                <span class="deficit-proj-label">Grasa equivalente</span>
+                                <span class="deficit-proj-value" style="color:${cumColor}">${cumSign}${cumulativeKg} kg</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="deficit-proj-item">
+                                <span class="deficit-proj-label">Promedio por dia</span>
+                                <span class="deficit-proj-value" style="color:${cumColor}">${cumSign}${cumAvg} kcal/dia</span>
+                            </div>
+                            <div class="deficit-proj-item">
+                                <span class="deficit-proj-label">Dias registrados</span>
+                                <span class="deficit-proj-value">${cumDaysTracked}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
         container.innerHTML = `
             <div class="deficit-summary">
                 <div class="deficit-box consumed">
@@ -336,6 +390,8 @@ const app = {
             </div>
 
             ${projectionHtml}
+
+            ${cumulativeHtml}
 
             <div class="deficit-reference">
                 <div class="deficit-reference-title">

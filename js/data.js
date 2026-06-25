@@ -54,6 +54,20 @@ const FOOD_DATABASE = [
     { name: "Trucha", category: "carnes_blancas", calories: 148, protein: 21, carbs: 0, fat: 6.6, portion: 100, unitWeight: 115 },
     { name: "Sardina en lata", category: "carnes_blancas", calories: 208, protein: 25, carbs: 0, fat: 11, portion: 100, unitWeight: 92 },
     { name: "Jamon de pavo", category: "carnes_blancas", calories: 104, protein: 17, carbs: 2, fat: 3, portion: 100, unitWeight: 20 },
+    // Super Pollo y pavo San Jorge
+    { name: "Pechuga Super Pollo (100g)", category: "carnes_blancas", calories: 165, protein: 31, carbs: 0, fat: 3.6, portion: 100, preparations: [
+        { name: "A la plancha", calories: 165, protein: 31, carbs: 0, fat: 3.6 },
+        { name: "Al horno", calories: 160, protein: 31, carbs: 0, fat: 3.2 },
+        { name: "Hervida", calories: 150, protein: 30, carbs: 0, fat: 2.5 },
+        { name: "Apanada", calories: 255, protein: 24, carbs: 12, fat: 14 },
+    ] },
+    { name: "Pechuga ahumada Super Pollo (rebanada 20g)", category: "carnes_blancas", calories: 26, protein: 5, carbs: 0.3, fat: 0.5, portion: 20 },
+    { name: "Pavo ahumado San Jorge (rebanada 20g)", category: "carnes_blancas", calories: 22, protein: 3.5, carbs: 0.5, fat: 0.6, portion: 20 },
+    // Conservas de pescado chilenas
+    { name: "Atun Albacora en agua (lata 160g escurrida)", category: "carnes_blancas", calories: 176, protein: 38, carbs: 0, fat: 1.5, portion: 160 },
+    { name: "Atun Albacora en aceite (lata 160g escurrida)", category: "carnes_blancas", calories: 304, protein: 36, carbs: 0, fat: 17, portion: 160 },
+    { name: "Sardinas Malloa en salsa de tomate (100g)", category: "carnes_blancas", calories: 168, protein: 18, carbs: 2, fat: 9, portion: 100 },
+    { name: "Sardinas Malloa en aceite (100g)", category: "carnes_blancas", calories: 208, protein: 20, carbs: 0, fat: 13, portion: 100 },
 
     // ==================== CARNES ROJAS ====================
     { name: "Carne molida (magra)", category: "carnes_rojas", calories: 250, protein: 26, carbs: 0, fat: 15, portion: 100, preparations: [
@@ -82,6 +96,25 @@ const FOOD_DATABASE = [
     { name: "Jamon serrano", category: "carnes_rojas", calories: 241, protein: 31, carbs: 0.3, fat: 12, portion: 100, unitWeight: 15 },
     { name: "Longaniza", category: "carnes_rojas", calories: 320, protein: 18, carbs: 1.5, fat: 27, portion: 100, unitWeight: 80 },
     { name: "Vienesa/Salchicha", category: "carnes_rojas", calories: 290, protein: 11, carbs: 3, fat: 26, portion: 100, unitWeight: 50 },
+    // Cecinas San Jorge (Agrosuper)
+    { name: "Churrasco de vacuno San Jorge (120g)", category: "carnes_rojas", calories: 198, protein: 24, carbs: 0, fat: 11, portion: 120, preparations: [
+        { name: "A la plancha", calories: 198, protein: 24, carbs: 0, fat: 11 },
+        { name: "Frito", calories: 240, protein: 22, carbs: 0, fat: 16 },
+        { name: "Al horno", calories: 190, protein: 24, carbs: 0, fat: 10 },
+    ] },
+    { name: "Longaniza San Jorge (unidad 80g)", category: "carnes_rojas", calories: 254, protein: 12, carbs: 1, fat: 22, portion: 80 },
+    { name: "Vienesa San Jorge (unidad 50g)", category: "carnes_rojas", calories: 145, protein: 5.5, carbs: 1.5, fat: 13, portion: 50 },
+    { name: "Mortadela San Jorge (rebanada 25g)", category: "carnes_rojas", calories: 68, protein: 3, carbs: 1, fat: 6, portion: 25 },
+    { name: "Jamon de pierna San Jorge (rebanada 20g)", category: "carnes_rojas", calories: 22, protein: 3.5, carbs: 0.5, fat: 0.7, portion: 20 },
+    { name: "Costillar cerdo adobado San Jorge (150g)", category: "carnes_rojas", calories: 390, protein: 28, carbs: 2, fat: 30, portion: 150, preparations: [
+        { name: "A la plancha", calories: 390, protein: 28, carbs: 2, fat: 30 },
+        { name: "Al horno", calories: 370, protein: 29, carbs: 2, fat: 28 },
+        { name: "BBQ", calories: 410, protein: 27, carbs: 5, fat: 31 },
+    ] },
+    { name: "Plateada de vacuno San Jorge (100g)", category: "carnes_rojas", calories: 290, protein: 23, carbs: 0, fat: 22, portion: 100, preparations: [
+        { name: "Estofada", calories: 290, protein: 23, carbs: 0, fat: 22 },
+        { name: "Al horno", calories: 285, protein: 24, carbs: 0, fat: 20 },
+    ] },
 
     // ==================== MARISCOS ====================
     { name: "Camaron", category: "mariscos", calories: 99, protein: 24, carbs: 0.2, fat: 0.3, portion: 100, unitWeight: 10, preparations: [
@@ -205,6 +238,20 @@ const FOOD_DATABASE = [
     // Cereales chilenos
     { name: "Cereal Zucosos Nestle (porcion)", category: "cereales", calories: 150, protein: 2, carbs: 33, fat: 1, portion: 40 },
     { name: "Cereal Chocapic Nestle (porcion)", category: "cereales", calories: 152, protein: 2.5, carbs: 32, fat: 1.5, portion: 40 },
+    // Pastas Luchetti
+    { name: "Tallarines Luchetti crudos (porcion 85g)", category: "cereales", calories: 304, protein: 11, carbs: 62, fat: 1.5, portion: 85 },
+    { name: "Spaghetti Luchetti crudos (porcion 85g)", category: "cereales", calories: 304, protein: 11, carbs: 62, fat: 1.5, portion: 85 },
+    { name: "Penne Luchetti crudos (porcion 85g)", category: "cereales", calories: 302, protein: 10.5, carbs: 62, fat: 1.3, portion: 85 },
+    { name: "Lasagna Luchetti (porcion cruda 85g)", category: "cereales", calories: 306, protein: 11, carbs: 63, fat: 1.5, portion: 85 },
+    // Pastas Carozzi
+    { name: "Tallarines Carozzi crudos (porcion 85g)", category: "cereales", calories: 300, protein: 10, carbs: 63, fat: 1.2, portion: 85 },
+    { name: "Spaghetti Carozzi crudos (porcion 85g)", category: "cereales", calories: 300, protein: 10, carbs: 63, fat: 1.2, portion: 85 },
+    // Arroz Tucapel
+    { name: "Arroz Tucapel cocido (100g)", category: "cereales", calories: 130, protein: 2.5, carbs: 28, fat: 0.3, portion: 100 },
+    { name: "Arroz Tucapel crudo (porcion 75g)", category: "cereales", calories: 273, protein: 5.5, carbs: 60, fat: 0.5, portion: 75 },
+    // Avena Quaker
+    { name: "Avena Quaker tradicional (porcion 40g)", category: "cereales", calories: 156, protein: 6, carbs: 27, fat: 3, portion: 40 },
+    { name: "Avena Quaker instantanea (sobre 28g)", category: "cereales", calories: 100, protein: 3.5, carbs: 19, fat: 2, portion: 28 },
 
     // ==================== LEGUMBRES ====================
     { name: "Lentejas cocidas", category: "legumbres", calories: 116, protein: 9, carbs: 20, fat: 0.4, portion: 100 },
@@ -257,6 +304,20 @@ const FOOD_DATABASE = [
     { name: "Yogurt Soprole (vasito)", category: "lacteos", calories: 100, protein: 4, carbs: 16, fat: 2, portion: 120 },
     { name: "Leche Soprole entera (vaso 200ml)", category: "lacteos", calories: 120, protein: 6.2, carbs: 9.4, fat: 6.4, portion: 200 },
     { name: "Manjar Soprole (cucharada)", category: "lacteos", calories: 62, protein: 1.1, carbs: 11.5, fat: 1.3, portion: 20 },
+    // Lacteos Danone
+    { name: "Yogurt Danone Activia natural (frasco 125g)", category: "lacteos", calories: 90, protein: 4.5, carbs: 12, fat: 2.5, portion: 125 },
+    { name: "Yogurt Danone Activia frutilla (frasco 125g)", category: "lacteos", calories: 110, protein: 4, carbs: 17, fat: 2.3, portion: 125 },
+    { name: "Yogurt Danone Activia 0% (frasco 125g)", category: "lacteos", calories: 65, protein: 5, carbs: 10, fat: 0.1, portion: 125 },
+    // Quesos Soprole
+    { name: "Queso Soprole laminado (rebanada 22g)", category: "lacteos", calories: 75, protein: 5, carbs: 0.4, fat: 6, portion: 22 },
+    { name: "Queso Soprole mantecoso (porcion 30g)", category: "lacteos", calories: 105, protein: 7, carbs: 0.5, fat: 8.5, portion: 30 },
+    { name: "Queso crema Soprole (porcion 30g)", category: "lacteos", calories: 90, protein: 2, carbs: 1.5, fat: 8.5, portion: 30 },
+    // Mantequillas
+    { name: "Mantequilla Colun (porcion 10g)", category: "lacteos", calories: 72, protein: 0.1, carbs: 0, fat: 8, portion: 10 },
+    { name: "Mantequilla Soprole (porcion 10g)", category: "lacteos", calories: 73, protein: 0.1, carbs: 0.1, fat: 8.1, portion: 10 },
+    // Crema de leche
+    { name: "Crema Colun (cda 15ml)", category: "lacteos", calories: 50, protein: 0.3, carbs: 0.5, fat: 5.3, portion: 15 },
+    { name: "Crema Soprole (cda 15ml)", category: "lacteos", calories: 51, protein: 0.3, carbs: 0.5, fat: 5.4, portion: 15 },
 
     // ==================== GRASAS Y ACEITES ====================
     { name: "Aceite de oliva (cucharada)", category: "grasas", calories: 119, protein: 0, carbs: 0, fat: 13.5, portion: 15 },
@@ -322,6 +383,21 @@ const FOOD_DATABASE = [
     { name: "Galleta Toddy (unidad)", category: "snacks", calories: 75, protein: 1, carbs: 10, fat: 3.5, portion: 16 },
     { name: "Galleta Oreo (unidad)", category: "snacks", calories: 53, protein: 0.5, carbs: 8, fat: 2.3, portion: 11 },
     { name: "Galleta Chiquitin Costa", category: "snacks", calories: 50, protein: 0.5, carbs: 7, fat: 2, portion: 10 },
+    // Snacks Costa adicionales
+    { name: "Chocman Costa (unidad 28g)", category: "snacks", calories: 138, protein: 2, carbs: 17, fat: 7, portion: 28 },
+    { name: "Baton Costa (unidad 45g)", category: "snacks", calories: 220, protein: 3, carbs: 28, fat: 11, portion: 45 },
+    { name: "Morocho Costa (unidad 30g)", category: "snacks", calories: 145, protein: 1.5, carbs: 20, fat: 6.5, portion: 30 },
+    // Papas fritas de marca
+    { name: "Papas Lays Classic (bolsa 45g)", category: "snacks", calories: 240, protein: 3, carbs: 23, fat: 15, portion: 45 },
+    { name: "Papas Lays Classic (bolsa 25g)", category: "snacks", calories: 133, protein: 1.5, carbs: 13, fat: 8.5, portion: 25 },
+    { name: "Papas Ruffles (bolsa 45g)", category: "snacks", calories: 238, protein: 3, carbs: 22, fat: 16, portion: 45 },
+    { name: "Pringles Original (tubo 149g)", category: "snacks", calories: 774, protein: 7, carbs: 79, fat: 49, portion: 149 },
+    { name: "Pringles Original (porcion 30g)", category: "snacks", calories: 156, protein: 1.5, carbs: 16, fat: 10, portion: 30 },
+    // Otros snacks chilenos
+    { name: "Doritos Nacho (bolsa 45g)", category: "snacks", calories: 222, protein: 3, carbs: 27, fat: 11, portion: 45 },
+    { name: "Cheetos (bolsa 45g)", category: "snacks", calories: 238, protein: 3.5, carbs: 25, fat: 14, portion: 45 },
+    { name: "Nachos Carozzi (bolsa 70g)", category: "snacks", calories: 350, protein: 5, carbs: 43, fat: 17, portion: 70 },
+    { name: "Kuky Avena Costa (unidad)", category: "snacks", calories: 58, protein: 0.8, carbs: 8, fat: 2.5, portion: 12 },
 
     // ==================== BEBESTIBLES ====================
     { name: "Coca-Cola (lata)", category: "bebestibles", calories: 139, protein: 0, carbs: 35, fat: 0, portion: 330 },
@@ -426,6 +502,7 @@ const FOOD_DATABASE = [
     { name: "Gin tonic (vaso 250ml)", category: "bebestibles", calories: 171, protein: 0, carbs: 14, fat: 0, portion: 250 },
     { name: "Terremoto (vaso)", category: "bebestibles", calories: 350, protein: 1, carbs: 45, fat: 3, portion: 300 },
     // Infusiones y cafe Chile
+    { name: "Nescafe Dolca (taza 240ml)", category: "bebestibles", calories: 5, protein: 0.3, carbs: 0.5, fat: 0, portion: 240 },
     { name: "Nescafe clasico (taza)", category: "bebestibles", calories: 2, protein: 0.3, carbs: 0, fat: 0, portion: 240 },
     { name: "Cafe expreso (shot)", category: "bebestibles", calories: 3, protein: 0.1, carbs: 0.5, fat: 0, portion: 30 },
     { name: "Cafe americano (taza)", category: "bebestibles", calories: 5, protein: 0.3, carbs: 0, fat: 0, portion: 240 },
@@ -459,6 +536,16 @@ const FOOD_DATABASE = [
     // Salsas chilenas
     { name: "Pebre (cucharada)", category: "salsas", calories: 10, protein: 0.3, carbs: 2, fat: 0.2, portion: 15 },
     { name: "Chancho en piedra (cucharada)", category: "salsas", calories: 12, protein: 0.4, carbs: 2.5, fat: 0.3, portion: 15 },
+    // Salsas y condimentos de marca chilena
+    { name: "Salsa de tomate Carozzi (100g)", category: "salsas", calories: 32, protein: 1.2, carbs: 7, fat: 0.1, portion: 100 },
+    { name: "Ketchup Malloa (cucharada 15g)", category: "salsas", calories: 16, protein: 0.3, carbs: 4, fat: 0, portion: 15 },
+    { name: "Mayonesa Hellmann's (cucharada 13g)", category: "salsas", calories: 90, protein: 0.1, carbs: 0.1, fat: 10, portion: 13 },
+    { name: "Mayonesa Hellmann's Light (cucharada 15g)", category: "salsas", calories: 45, protein: 0.1, carbs: 1, fat: 4.5, portion: 15 },
+    { name: "Salsa de aji Verde Carozzi (cucharadita 5g)", category: "salsas", calories: 4, protein: 0.1, carbs: 0.8, fat: 0.1, portion: 5 },
+    { name: "Mermelada Watts frutilla (cucharada 20g)", category: "salsas", calories: 52, protein: 0.1, carbs: 13, fat: 0, portion: 20 },
+    { name: "Mermelada Watts damasco (cucharada 20g)", category: "salsas", calories: 50, protein: 0.1, carbs: 12.5, fat: 0, portion: 20 },
+    { name: "Maggi sopa de pollo (sobre preparado 250ml)", category: "salsas", calories: 45, protein: 1.5, carbs: 8, fat: 1, portion: 250 },
+    { name: "Knorr sopa crema verduras (sobre preparado 250ml)", category: "salsas", calories: 90, protein: 2, carbs: 13, fat: 3.5, portion: 250 },
 
     // ==================== PLATOS COMUNES ====================
     { name: "Hamburguesa simple", category: "platos_comunes", calories: 354, protein: 20, carbs: 29, fat: 17, portion: 150 },

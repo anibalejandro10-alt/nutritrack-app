@@ -1,26 +1,26 @@
 const FOOD_DATABASE = [
     // ==================== CARNES BLANCAS ====================
-    { name: "Pechuga de pollo", category: "carnes_blancas", calories: 165, protein: 31, carbs: 0, fat: 3.6, portion: 100, preparations: [
+    { name: "Pechuga de pollo", category: "carnes_blancas", calories: 165, protein: 31, carbs: 0, fat: 3.6, portion: 100, unitWeight: 170, preparations: [
         { name: "A la plancha", calories: 165, protein: 31, carbs: 0, fat: 3.6 },
         { name: "Frita", calories: 220, protein: 27, carbs: 5, fat: 10 },
         { name: "Al horno", calories: 165, protein: 31, carbs: 0, fat: 3.6 },
         { name: "Hervida", calories: 150, protein: 30, carbs: 0, fat: 2.5 },
         { name: "Apanada", calories: 260, protein: 24, carbs: 12, fat: 14 },
     ] },
-    { name: "Muslo de pollo (sin piel)", category: "carnes_blancas", calories: 209, protein: 26, carbs: 0, fat: 10.9, portion: 100, preparations: [
+    { name: "Muslo de pollo (sin piel)", category: "carnes_blancas", calories: 209, protein: 26, carbs: 0, fat: 10.9, portion: 100, unitWeight: 85, preparations: [
         { name: "A la plancha", calories: 209, protein: 26, carbs: 0, fat: 10.9 },
         { name: "Frito", calories: 260, protein: 24, carbs: 3, fat: 15.5 },
         { name: "Al horno", calories: 220, protein: 25, carbs: 0, fat: 12 },
         { name: "Guisado", calories: 200, protein: 23, carbs: 4, fat: 10 },
     ] },
-    { name: "Ala de pollo", category: "carnes_blancas", calories: 203, protein: 30, carbs: 0, fat: 8.1, portion: 100 },
-    { name: "Pollo entero asado", category: "carnes_blancas", calories: 239, protein: 27, carbs: 0, fat: 14, portion: 100, preparations: [
+    { name: "Ala de pollo", category: "carnes_blancas", calories: 203, protein: 30, carbs: 0, fat: 8.1, portion: 100, unitWeight: 34 },
+    { name: "Pollo entero asado", category: "carnes_blancas", calories: 239, protein: 27, carbs: 0, fat: 14, portion: 100, unitWeight: 200, preparations: [
         { name: "Asado", calories: 239, protein: 27, carbs: 0, fat: 14 },
         { name: "Frito", calories: 280, protein: 25, carbs: 5, fat: 18 },
         { name: "Al horno", calories: 230, protein: 28, carbs: 0, fat: 12 },
         { name: "Hervido", calories: 200, protein: 29, carbs: 0, fat: 8 },
     ] },
-    { name: "Huevo entero", category: "carnes_blancas", calories: 155, protein: 13, carbs: 1.1, fat: 11, portion: 100, preparations: [
+    { name: "Huevo entero", category: "carnes_blancas", calories: 155, protein: 13, carbs: 1.1, fat: 11, portion: 100, unitWeight: 50, preparations: [
         { name: "Cocido/Duro", calories: 155, protein: 13, carbs: 1.1, fat: 11 },
         { name: "Frito en aceite", calories: 196, protein: 13.6, carbs: 0.8, fat: 15 },
         { name: "Revuelto", calories: 149, protein: 10.2, carbs: 1.6, fat: 11.2 },
@@ -28,32 +28,32 @@ const FOOD_DATABASE = [
         { name: "Omelette", calories: 154, protein: 10.6, carbs: 0.6, fat: 12 },
     ] },
     { name: "Huevo entero (unidad 50g)", category: "carnes_blancas", calories: 78, protein: 6.5, carbs: 0.6, fat: 5.5, portion: 50 },
-    { name: "Clara de huevo", category: "carnes_blancas", calories: 52, protein: 11, carbs: 0.7, fat: 0.2, portion: 100 },
-    { name: "Salmon", category: "carnes_blancas", calories: 208, protein: 20, carbs: 0, fat: 13, portion: 100, preparations: [
+    { name: "Clara de huevo", category: "carnes_blancas", calories: 52, protein: 11, carbs: 0.7, fat: 0.2, portion: 100, unitWeight: 33 },
+    { name: "Salmon", category: "carnes_blancas", calories: 208, protein: 20, carbs: 0, fat: 13, portion: 100, unitWeight: 125, preparations: [
         { name: "A la plancha", calories: 208, protein: 20, carbs: 0, fat: 13 },
         { name: "Al horno", calories: 183, protein: 25, carbs: 0, fat: 8.5 },
         { name: "Ahumado", calories: 117, protein: 18, carbs: 0, fat: 4.3 },
         { name: "Crudo/Sashimi", calories: 127, protein: 20, carbs: 0, fat: 4.7 },
     ] },
-    { name: "Atun en agua", category: "carnes_blancas", calories: 116, protein: 26, carbs: 0, fat: 1, portion: 100, preparations: [
+    { name: "Atun en agua", category: "carnes_blancas", calories: 116, protein: 26, carbs: 0, fat: 1, portion: 100, unitWeight: 112, preparations: [
         { name: "Directo de lata", calories: 116, protein: 26, carbs: 0, fat: 1 },
         { name: "A la plancha", calories: 130, protein: 29, carbs: 0, fat: 1.3 },
         { name: "Al horno", calories: 128, protein: 28, carbs: 0, fat: 1.2 },
     ] },
-    { name: "Atun en aceite", category: "carnes_blancas", calories: 198, protein: 29, carbs: 0, fat: 8, portion: 100 },
-    { name: "Pavo (pechuga)", category: "carnes_blancas", calories: 135, protein: 30, carbs: 0, fat: 1, portion: 100 },
-    { name: "Merluza", category: "carnes_blancas", calories: 90, protein: 18, carbs: 0, fat: 1.3, portion: 100, preparations: [
+    { name: "Atun en aceite", category: "carnes_blancas", calories: 198, protein: 29, carbs: 0, fat: 8, portion: 100, unitWeight: 112 },
+    { name: "Pavo (pechuga)", category: "carnes_blancas", calories: 135, protein: 30, carbs: 0, fat: 1, portion: 100, unitWeight: 150 },
+    { name: "Merluza", category: "carnes_blancas", calories: 90, protein: 18, carbs: 0, fat: 1.3, portion: 100, unitWeight: 120, preparations: [
         { name: "A la plancha", calories: 90, protein: 18, carbs: 0, fat: 1.3 },
         { name: "Frita", calories: 197, protein: 16, carbs: 8, fat: 12 },
         { name: "Al horno", calories: 95, protein: 19, carbs: 0, fat: 1.5 },
         { name: "Al vapor", calories: 85, protein: 18, carbs: 0, fat: 1 },
     ] },
-    { name: "Reineta", category: "carnes_blancas", calories: 85, protein: 17, carbs: 0, fat: 1.5, portion: 100 },
-    { name: "Congrio", category: "carnes_blancas", calories: 95, protein: 20, carbs: 0, fat: 1.2, portion: 100 },
-    { name: "Tilapia", category: "carnes_blancas", calories: 96, protein: 20, carbs: 0, fat: 1.7, portion: 100 },
-    { name: "Trucha", category: "carnes_blancas", calories: 148, protein: 21, carbs: 0, fat: 6.6, portion: 100 },
-    { name: "Sardina en lata", category: "carnes_blancas", calories: 208, protein: 25, carbs: 0, fat: 11, portion: 100 },
-    { name: "Jamon de pavo", category: "carnes_blancas", calories: 104, protein: 17, carbs: 2, fat: 3, portion: 100 },
+    { name: "Reineta", category: "carnes_blancas", calories: 85, protein: 17, carbs: 0, fat: 1.5, portion: 100, unitWeight: 150 },
+    { name: "Congrio", category: "carnes_blancas", calories: 95, protein: 20, carbs: 0, fat: 1.2, portion: 100, unitWeight: 150 },
+    { name: "Tilapia", category: "carnes_blancas", calories: 96, protein: 20, carbs: 0, fat: 1.7, portion: 100, unitWeight: 115 },
+    { name: "Trucha", category: "carnes_blancas", calories: 148, protein: 21, carbs: 0, fat: 6.6, portion: 100, unitWeight: 115 },
+    { name: "Sardina en lata", category: "carnes_blancas", calories: 208, protein: 25, carbs: 0, fat: 11, portion: 100, unitWeight: 92 },
+    { name: "Jamon de pavo", category: "carnes_blancas", calories: 104, protein: 17, carbs: 2, fat: 3, portion: 100, unitWeight: 20 },
 
     // ==================== CARNES ROJAS ====================
     { name: "Carne molida (magra)", category: "carnes_rojas", calories: 250, protein: 26, carbs: 0, fat: 15, portion: 100, preparations: [
@@ -62,29 +62,29 @@ const FOOD_DATABASE = [
         { name: "Al horno", calories: 245, protein: 26, carbs: 0, fat: 14.5 },
     ] },
     { name: "Carne molida (extra magra)", category: "carnes_rojas", calories: 176, protein: 26, carbs: 0, fat: 7.6, portion: 100 },
-    { name: "Lomo de cerdo", category: "carnes_rojas", calories: 143, protein: 26, carbs: 0, fat: 3.5, portion: 100, preparations: [
+    { name: "Lomo de cerdo", category: "carnes_rojas", calories: 143, protein: 26, carbs: 0, fat: 3.5, portion: 100, unitWeight: 150, preparations: [
         { name: "A la plancha", calories: 143, protein: 26, carbs: 0, fat: 3.5 },
         { name: "Al horno", calories: 150, protein: 27, carbs: 0, fat: 4 },
         { name: "Frito", calories: 210, protein: 24, carbs: 2, fat: 12 },
         { name: "Guisado", calories: 165, protein: 25, carbs: 2, fat: 6 },
     ] },
-    { name: "Chuleta de cerdo", category: "carnes_rojas", calories: 231, protein: 25, carbs: 0, fat: 14, portion: 100 },
-    { name: "Costilla de cerdo", category: "carnes_rojas", calories: 277, protein: 20, carbs: 0, fat: 21, portion: 100 },
-    { name: "Lomo vetado", category: "carnes_rojas", calories: 271, protein: 26, carbs: 0, fat: 18, portion: 100 },
-    { name: "Filete de res", category: "carnes_rojas", calories: 271, protein: 26, carbs: 0, fat: 18, portion: 100, preparations: [
+    { name: "Chuleta de cerdo", category: "carnes_rojas", calories: 231, protein: 25, carbs: 0, fat: 14, portion: 100, unitWeight: 125 },
+    { name: "Costilla de cerdo", category: "carnes_rojas", calories: 277, protein: 20, carbs: 0, fat: 21, portion: 100, unitWeight: 150 },
+    { name: "Lomo vetado", category: "carnes_rojas", calories: 271, protein: 26, carbs: 0, fat: 18, portion: 100, unitWeight: 200 },
+    { name: "Filete de res", category: "carnes_rojas", calories: 271, protein: 26, carbs: 0, fat: 18, portion: 100, unitWeight: 200, preparations: [
         { name: "A la plancha", calories: 271, protein: 26, carbs: 0, fat: 18 },
         { name: "Al horno", calories: 250, protein: 27, carbs: 0, fat: 15 },
         { name: "Frito", calories: 310, protein: 24, carbs: 3, fat: 23 },
         { name: "Guisado", calories: 240, protein: 25, carbs: 4, fat: 13 },
     ] },
-    { name: "Carne de cordero", category: "carnes_rojas", calories: 294, protein: 25, carbs: 0, fat: 21, portion: 100 },
-    { name: "Chorizo", category: "carnes_rojas", calories: 455, protein: 24, carbs: 2, fat: 38, portion: 100 },
-    { name: "Jamon serrano", category: "carnes_rojas", calories: 241, protein: 31, carbs: 0.3, fat: 12, portion: 100 },
-    { name: "Longaniza", category: "carnes_rojas", calories: 320, protein: 18, carbs: 1.5, fat: 27, portion: 100 },
-    { name: "Vienesa/Salchicha", category: "carnes_rojas", calories: 290, protein: 11, carbs: 3, fat: 26, portion: 100 },
+    { name: "Carne de cordero", category: "carnes_rojas", calories: 294, protein: 25, carbs: 0, fat: 21, portion: 100, unitWeight: 150 },
+    { name: "Chorizo", category: "carnes_rojas", calories: 455, protein: 24, carbs: 2, fat: 38, portion: 100, unitWeight: 60 },
+    { name: "Jamon serrano", category: "carnes_rojas", calories: 241, protein: 31, carbs: 0.3, fat: 12, portion: 100, unitWeight: 15 },
+    { name: "Longaniza", category: "carnes_rojas", calories: 320, protein: 18, carbs: 1.5, fat: 27, portion: 100, unitWeight: 80 },
+    { name: "Vienesa/Salchicha", category: "carnes_rojas", calories: 290, protein: 11, carbs: 3, fat: 26, portion: 100, unitWeight: 50 },
 
     // ==================== MARISCOS ====================
-    { name: "Camaron", category: "mariscos", calories: 99, protein: 24, carbs: 0.2, fat: 0.3, portion: 100, preparations: [
+    { name: "Camaron", category: "mariscos", calories: 99, protein: 24, carbs: 0.2, fat: 0.3, portion: 100, unitWeight: 10, preparations: [
         { name: "Cocido", calories: 99, protein: 24, carbs: 0.2, fat: 0.3 },
         { name: "A la plancha", calories: 120, protein: 24, carbs: 0, fat: 2 },
         { name: "Frito", calories: 242, protein: 18, carbs: 11, fat: 14 },
@@ -95,62 +95,62 @@ const FOOD_DATABASE = [
     { name: "Mejillones", category: "mariscos", calories: 86, protein: 12, carbs: 3.7, fat: 2.2, portion: 100 },
 
     // ==================== FRUTAS ====================
-    { name: "Platano", category: "frutas", calories: 89, protein: 1.1, carbs: 23, fat: 0.3, portion: 100 },
-    { name: "Manzana", category: "frutas", calories: 52, protein: 0.3, carbs: 14, fat: 0.2, portion: 100 },
-    { name: "Naranja", category: "frutas", calories: 47, protein: 0.9, carbs: 12, fat: 0.1, portion: 100 },
+    { name: "Platano", category: "frutas", calories: 89, protein: 1.1, carbs: 23, fat: 0.3, portion: 100, unitWeight: 118 },
+    { name: "Manzana", category: "frutas", calories: 52, protein: 0.3, carbs: 14, fat: 0.2, portion: 100, unitWeight: 182 },
+    { name: "Naranja", category: "frutas", calories: 47, protein: 0.9, carbs: 12, fat: 0.1, portion: 100, unitWeight: 131 },
     { name: "Fresa", category: "frutas", calories: 33, protein: 0.7, carbs: 8, fat: 0.3, portion: 100 },
     { name: "Arandanos", category: "frutas", calories: 57, protein: 0.7, carbs: 14, fat: 0.3, portion: 100 },
     { name: "Uvas", category: "frutas", calories: 69, protein: 0.7, carbs: 18, fat: 0.2, portion: 100 },
-    { name: "Mango", category: "frutas", calories: 60, protein: 0.8, carbs: 15, fat: 0.4, portion: 100 },
-    { name: "Palta/Aguacate", category: "frutas", calories: 160, protein: 2, carbs: 9, fat: 15, portion: 100 },
+    { name: "Mango", category: "frutas", calories: 60, protein: 0.8, carbs: 15, fat: 0.4, portion: 100, unitWeight: 200 },
+    { name: "Palta/Aguacate", category: "frutas", calories: 160, protein: 2, carbs: 9, fat: 15, portion: 100, unitWeight: 136 },
     { name: "Sandia", category: "frutas", calories: 30, protein: 0.6, carbs: 8, fat: 0.2, portion: 100 },
     { name: "Pina", category: "frutas", calories: 50, protein: 0.5, carbs: 13, fat: 0.1, portion: 100 },
-    { name: "Kiwi", category: "frutas", calories: 61, protein: 1.1, carbs: 15, fat: 0.5, portion: 100 },
+    { name: "Kiwi", category: "frutas", calories: 61, protein: 1.1, carbs: 15, fat: 0.5, portion: 100, unitWeight: 76 },
     { name: "Cereza", category: "frutas", calories: 50, protein: 1, carbs: 12, fat: 0.3, portion: 100 },
-    { name: "Pera", category: "frutas", calories: 57, protein: 0.4, carbs: 15, fat: 0.1, portion: 100 },
-    { name: "Durazno/Melocoton", category: "frutas", calories: 39, protein: 0.9, carbs: 10, fat: 0.3, portion: 100 },
+    { name: "Pera", category: "frutas", calories: 57, protein: 0.4, carbs: 15, fat: 0.1, portion: 100, unitWeight: 178 },
+    { name: "Durazno/Melocoton", category: "frutas", calories: 39, protein: 0.9, carbs: 10, fat: 0.3, portion: 100, unitWeight: 150 },
     { name: "Melon", category: "frutas", calories: 34, protein: 0.8, carbs: 8, fat: 0.2, portion: 100 },
     { name: "Papaya", category: "frutas", calories: 43, protein: 0.5, carbs: 11, fat: 0.3, portion: 100 },
-    { name: "Mandarina", category: "frutas", calories: 53, protein: 0.8, carbs: 13, fat: 0.3, portion: 100 },
-    { name: "Pomelo/Toronja", category: "frutas", calories: 42, protein: 0.8, carbs: 11, fat: 0.1, portion: 100 },
-    { name: "Ciruela", category: "frutas", calories: 46, protein: 0.7, carbs: 11, fat: 0.3, portion: 100 },
-    { name: "Higo fresco", category: "frutas", calories: 74, protein: 0.8, carbs: 19, fat: 0.3, portion: 100 },
+    { name: "Mandarina", category: "frutas", calories: 53, protein: 0.8, carbs: 13, fat: 0.3, portion: 100, unitWeight: 88 },
+    { name: "Pomelo/Toronja", category: "frutas", calories: 42, protein: 0.8, carbs: 11, fat: 0.1, portion: 100, unitWeight: 230 },
+    { name: "Ciruela", category: "frutas", calories: 46, protein: 0.7, carbs: 11, fat: 0.3, portion: 100, unitWeight: 66 },
+    { name: "Higo fresco", category: "frutas", calories: 74, protein: 0.8, carbs: 19, fat: 0.3, portion: 100, unitWeight: 50 },
     { name: "Frambuesa", category: "frutas", calories: 52, protein: 1.2, carbs: 12, fat: 0.7, portion: 100 },
     { name: "Mora", category: "frutas", calories: 43, protein: 1.4, carbs: 10, fat: 0.5, portion: 100 },
-    { name: "Chirimoya", category: "frutas", calories: 75, protein: 1.6, carbs: 18, fat: 0.7, portion: 100 },
+    { name: "Chirimoya", category: "frutas", calories: 75, protein: 1.6, carbs: 18, fat: 0.7, portion: 100, unitWeight: 160 },
     { name: "Lucuma", category: "frutas", calories: 99, protein: 1.5, carbs: 25, fat: 0.5, portion: 100 },
-    { name: "Guayaba", category: "frutas", calories: 68, protein: 2.6, carbs: 14, fat: 1, portion: 100 },
+    { name: "Guayaba", category: "frutas", calories: 68, protein: 2.6, carbs: 14, fat: 1, portion: 100, unitWeight: 55 },
     { name: "Maracuya", category: "frutas", calories: 97, protein: 2.2, carbs: 23, fat: 0.7, portion: 100 },
     { name: "Coco rallado", category: "frutas", calories: 354, protein: 3.3, carbs: 15, fat: 33, portion: 100 },
-    { name: "Datiles secos", category: "frutas", calories: 282, protein: 2.5, carbs: 75, fat: 0.4, portion: 100 },
+    { name: "Datiles secos", category: "frutas", calories: 282, protein: 2.5, carbs: 75, fat: 0.4, portion: 100, unitWeight: 24 },
     { name: "Pasas", category: "frutas", calories: 299, protein: 3.1, carbs: 79, fat: 0.5, portion: 100 },
-    { name: "Ciruelas pasas", category: "frutas", calories: 240, protein: 2.2, carbs: 64, fat: 0.4, portion: 100 },
+    { name: "Ciruelas pasas", category: "frutas", calories: 240, protein: 2.2, carbs: 64, fat: 0.4, portion: 100, unitWeight: 10 },
 
     // ==================== VERDURAS ====================
-    { name: "Brocoli", category: "verduras", calories: 34, protein: 2.8, carbs: 7, fat: 0.4, portion: 100 },
+    { name: "Brocoli", category: "verduras", calories: 34, protein: 2.8, carbs: 7, fat: 0.4, portion: 100, unitWeight: 150 },
     { name: "Espinaca", category: "verduras", calories: 23, protein: 2.9, carbs: 3.6, fat: 0.4, portion: 100 },
-    { name: "Tomate", category: "verduras", calories: 18, protein: 0.9, carbs: 3.9, fat: 0.2, portion: 100 },
-    { name: "Zanahoria", category: "verduras", calories: 41, protein: 0.9, carbs: 10, fat: 0.2, portion: 100 },
+    { name: "Tomate", category: "verduras", calories: 18, protein: 0.9, carbs: 3.9, fat: 0.2, portion: 100, unitWeight: 123 },
+    { name: "Zanahoria", category: "verduras", calories: 41, protein: 0.9, carbs: 10, fat: 0.2, portion: 100, unitWeight: 72 },
     { name: "Lechuga", category: "verduras", calories: 15, protein: 1.4, carbs: 2.9, fat: 0.2, portion: 100 },
-    { name: "Pepino", category: "verduras", calories: 16, protein: 0.7, carbs: 3.6, fat: 0.1, portion: 100 },
-    { name: "Cebolla", category: "verduras", calories: 40, protein: 1.1, carbs: 9, fat: 0.1, portion: 100 },
-    { name: "Pimiento rojo", category: "verduras", calories: 31, protein: 1, carbs: 6, fat: 0.3, portion: 100 },
-    { name: "Pimiento verde", category: "verduras", calories: 20, protein: 0.9, carbs: 4.6, fat: 0.2, portion: 100 },
+    { name: "Pepino", category: "verduras", calories: 16, protein: 0.7, carbs: 3.6, fat: 0.1, portion: 100, unitWeight: 201 },
+    { name: "Cebolla", category: "verduras", calories: 40, protein: 1.1, carbs: 9, fat: 0.1, portion: 100, unitWeight: 110 },
+    { name: "Pimiento rojo", category: "verduras", calories: 31, protein: 1, carbs: 6, fat: 0.3, portion: 100, unitWeight: 119 },
+    { name: "Pimiento verde", category: "verduras", calories: 20, protein: 0.9, carbs: 4.6, fat: 0.2, portion: 100, unitWeight: 119 },
     { name: "Champiñones", category: "verduras", calories: 22, protein: 3.1, carbs: 3.3, fat: 0.3, portion: 100 },
     { name: "Coliflor", category: "verduras", calories: 25, protein: 1.9, carbs: 5, fat: 0.3, portion: 100 },
-    { name: "Zapallo italiano/Calabacin", category: "verduras", calories: 17, protein: 1.2, carbs: 3.1, fat: 0.3, portion: 100 },
+    { name: "Zapallo italiano/Calabacin", category: "verduras", calories: 17, protein: 1.2, carbs: 3.1, fat: 0.3, portion: 100, unitWeight: 196 },
     { name: "Zapallo/Calabaza", category: "verduras", calories: 26, protein: 1, carbs: 6.5, fat: 0.1, portion: 100 },
-    { name: "Berenjena", category: "verduras", calories: 25, protein: 1, carbs: 6, fat: 0.2, portion: 100 },
-    { name: "Apio", category: "verduras", calories: 16, protein: 0.7, carbs: 3, fat: 0.2, portion: 100 },
+    { name: "Berenjena", category: "verduras", calories: 25, protein: 1, carbs: 6, fat: 0.2, portion: 100, unitWeight: 300 },
+    { name: "Apio", category: "verduras", calories: 16, protein: 0.7, carbs: 3, fat: 0.2, portion: 100, unitWeight: 40 },
     { name: "Repollo/Col", category: "verduras", calories: 25, protein: 1.3, carbs: 6, fat: 0.1, portion: 100 },
     { name: "Col rizada/Kale", category: "verduras", calories: 49, protein: 4.3, carbs: 9, fat: 0.9, portion: 100 },
     { name: "Acelga", category: "verduras", calories: 19, protein: 1.8, carbs: 3.7, fat: 0.2, portion: 100 },
-    { name: "Esparragos", category: "verduras", calories: 20, protein: 2.2, carbs: 3.9, fat: 0.1, portion: 100 },
+    { name: "Esparragos", category: "verduras", calories: 20, protein: 2.2, carbs: 3.9, fat: 0.1, portion: 100, unitWeight: 16 },
     { name: "Arvejas/Guisantes", category: "verduras", calories: 81, protein: 5.4, carbs: 14, fat: 0.4, portion: 100 },
-    { name: "Choclo/Maiz desgranado", category: "verduras", calories: 86, protein: 3.3, carbs: 19, fat: 1.2, portion: 100 },
-    { name: "Betarraga/Remolacha", category: "verduras", calories: 43, protein: 1.6, carbs: 10, fat: 0.2, portion: 100 },
-    { name: "Alcachofa", category: "verduras", calories: 47, protein: 3.3, carbs: 11, fat: 0.2, portion: 100 },
-    { name: "Puerro", category: "verduras", calories: 61, protein: 1.5, carbs: 14, fat: 0.3, portion: 100 },
+    { name: "Choclo/Maiz desgranado", category: "verduras", calories: 86, protein: 3.3, carbs: 19, fat: 1.2, portion: 100, unitWeight: 90 },
+    { name: "Betarraga/Remolacha", category: "verduras", calories: 43, protein: 1.6, carbs: 10, fat: 0.2, portion: 100, unitWeight: 82 },
+    { name: "Alcachofa", category: "verduras", calories: 47, protein: 3.3, carbs: 11, fat: 0.2, portion: 100, unitWeight: 120 },
+    { name: "Puerro", category: "verduras", calories: 61, protein: 1.5, carbs: 14, fat: 0.3, portion: 100, unitWeight: 89 },
     { name: "Ajo (diente)", category: "verduras", calories: 5, protein: 0.2, carbs: 1, fat: 0, portion: 3 },
     { name: "Jengibre fresco", category: "verduras", calories: 80, protein: 1.8, carbs: 18, fat: 0.8, portion: 100 },
     { name: "Palmitos", category: "verduras", calories: 28, protein: 2.7, carbs: 4.6, fat: 0.6, portion: 100 },
@@ -171,10 +171,10 @@ const FOOD_DATABASE = [
     { name: "Pan integral (rebanada)", category: "cereales", calories: 69, protein: 3.6, carbs: 12, fat: 1.1, portion: 28 },
     { name: "Pan blanco (rebanada)", category: "cereales", calories: 75, protein: 2.7, carbs: 14, fat: 1, portion: 28 },
     { name: "Pan pita integral", category: "cereales", calories: 170, protein: 6, carbs: 33, fat: 2, portion: 60 },
-    { name: "Tortilla de harina", category: "cereales", calories: 312, protein: 8, carbs: 52, fat: 8, portion: 100 },
+    { name: "Tortilla de harina", category: "cereales", calories: 312, protein: 8, carbs: 52, fat: 8, portion: 100, unitWeight: 45 },
     { name: "Avena", category: "cereales", calories: 389, protein: 17, carbs: 66, fat: 7, portion: 100 },
     { name: "Avena instantanea (sobre)", category: "cereales", calories: 130, protein: 4, carbs: 23, fat: 2.5, portion: 35 },
-    { name: "Papa cocida", category: "cereales", calories: 87, protein: 1.9, carbs: 20, fat: 0.1, portion: 100, preparations: [
+    { name: "Papa cocida", category: "cereales", calories: 87, protein: 1.9, carbs: 20, fat: 0.1, portion: 100, unitWeight: 150, preparations: [
         { name: "Cocida", calories: 87, protein: 1.9, carbs: 20, fat: 0.1 },
         { name: "Frita", calories: 312, protein: 3.4, carbs: 41, fat: 15 },
         { name: "Al horno", calories: 93, protein: 2.5, carbs: 21, fat: 0.1 },
@@ -182,25 +182,25 @@ const FOOD_DATABASE = [
     ] },
     { name: "Papa frita (casera)", category: "cereales", calories: 312, protein: 3.4, carbs: 41, fat: 15, portion: 100 },
     { name: "Pure de papa", category: "cereales", calories: 83, protein: 2, carbs: 14, fat: 2.3, portion: 100 },
-    { name: "Camote cocido", category: "cereales", calories: 90, protein: 2, carbs: 21, fat: 0.1, portion: 100 },
+    { name: "Camote cocido", category: "cereales", calories: 90, protein: 2, carbs: 21, fat: 0.1, portion: 100, unitWeight: 130 },
     { name: "Quinoa cocida", category: "cereales", calories: 120, protein: 4.4, carbs: 21, fat: 1.9, portion: 100 },
     { name: "Tortilla de maiz", category: "cereales", calories: 52, protein: 1.4, carbs: 11, fat: 0.7, portion: 26 },
     { name: "Cuscus cocido", category: "cereales", calories: 112, protein: 3.8, carbs: 23, fat: 0.2, portion: 100 },
-    { name: "Choclo cocido", category: "cereales", calories: 96, protein: 3.4, carbs: 21, fat: 1.5, portion: 100 },
+    { name: "Choclo cocido", category: "cereales", calories: 96, protein: 3.4, carbs: 21, fat: 1.5, portion: 100, unitWeight: 150 },
     { name: "Pan de centeno (rebanada)", category: "cereales", calories: 83, protein: 2.7, carbs: 15, fat: 1.1, portion: 32 },
     { name: "Muesli", category: "cereales", calories: 340, protein: 10, carbs: 63, fat: 6, portion: 100 },
     { name: "Cereal fitness", category: "cereales", calories: 357, protein: 9, carbs: 73, fat: 2, portion: 100 },
     { name: "Cereal corn flakes", category: "cereales", calories: 357, protein: 7, carbs: 84, fat: 0.4, portion: 100 },
-    { name: "Yuca/Mandioca cocida", category: "cereales", calories: 160, protein: 1.4, carbs: 38, fat: 0.3, portion: 100 },
-    { name: "Platano verde cocido", category: "cereales", calories: 116, protein: 0.8, carbs: 31, fat: 0.2, portion: 100 },
+    { name: "Yuca/Mandioca cocida", category: "cereales", calories: 160, protein: 1.4, carbs: 38, fat: 0.3, portion: 100, unitWeight: 200 },
+    { name: "Platano verde cocido", category: "cereales", calories: 116, protein: 0.8, carbs: 31, fat: 0.2, portion: 100, unitWeight: 150 },
     // Pan y panaderia chilena
-    { name: "Marraqueta (unidad)", category: "cereales", calories: 280, protein: 9, carbs: 56, fat: 1.5, portion: 100 },
-    { name: "Hallulla (unidad)", category: "cereales", calories: 310, protein: 8, carbs: 52, fat: 7, portion: 100 },
+    { name: "Marraqueta (unidad)", category: "cereales", calories: 280, protein: 9, carbs: 56, fat: 1.5, portion: 100, unitWeight: 140 },
+    { name: "Hallulla (unidad)", category: "cereales", calories: 310, protein: 8, carbs: 52, fat: 7, portion: 100, unitWeight: 90 },
     { name: "Pan de molde Ideal (rebanada)", category: "cereales", calories: 72, protein: 2.5, carbs: 13, fat: 1, portion: 27 },
     { name: "Pan integral Ideal (rebanada)", category: "cereales", calories: 65, protein: 3, carbs: 12, fat: 1, portion: 27 },
     { name: "Dobladita (unidad)", category: "cereales", calories: 180, protein: 4, carbs: 30, fat: 5, portion: 60 },
     { name: "Pan amasado (unidad)", category: "cereales", calories: 250, protein: 6, carbs: 42, fat: 6, portion: 90 },
-    { name: "Coliza (unidad)", category: "cereales", calories: 290, protein: 8, carbs: 54, fat: 4, portion: 100 },
+    { name: "Coliza (unidad)", category: "cereales", calories: 290, protein: 8, carbs: 54, fat: 4, portion: 100, unitWeight: 115 },
     { name: "Pan de completo", category: "cereales", calories: 180, protein: 5, carbs: 34, fat: 2, portion: 65 },
     // Cereales chilenos
     { name: "Cereal Zucosos Nestle (porcion)", category: "cereales", calories: 150, protein: 2, carbs: 33, fat: 1, portion: 40 },
@@ -286,8 +286,8 @@ const FOOD_DATABASE = [
     { name: "Barra de proteina", category: "snacks", calories: 200, protein: 20, carbs: 22, fat: 7, portion: 60 },
     { name: "Barra de cereal", category: "snacks", calories: 130, protein: 2, carbs: 22, fat: 4, portion: 30 },
     { name: "Galletas de arroz", category: "snacks", calories: 35, protein: 0.7, carbs: 7.3, fat: 0.3, portion: 9 },
-    { name: "Chocolate negro 70%", category: "snacks", calories: 598, protein: 8, carbs: 46, fat: 43, portion: 100 },
-    { name: "Chocolate con leche", category: "snacks", calories: 535, protein: 8, carbs: 59, fat: 30, portion: 100 },
+    { name: "Chocolate negro 70%", category: "snacks", calories: 598, protein: 8, carbs: 46, fat: 43, portion: 100, unitWeight: 25 },
+    { name: "Chocolate con leche", category: "snacks", calories: 535, protein: 8, carbs: 59, fat: 30, portion: 100, unitWeight: 25 },
     { name: "Granola", category: "snacks", calories: 471, protein: 10, carbs: 64, fat: 20, portion: 100 },
     { name: "Whey protein (scoop)", category: "snacks", calories: 120, protein: 24, carbs: 3, fat: 1.5, portion: 30 },
     { name: "Caseina (scoop)", category: "snacks", calories: 120, protein: 24, carbs: 3, fat: 1, portion: 33 },
@@ -297,8 +297,8 @@ const FOOD_DATABASE = [
     { name: "Hummus", category: "snacks", calories: 166, protein: 8, carbs: 14, fat: 10, portion: 100 },
     { name: "Palomitas de maiz (natural)", category: "snacks", calories: 375, protein: 11, carbs: 74, fat: 4, portion: 100 },
     { name: "Papas fritas (bolsa 30g)", category: "snacks", calories: 160, protein: 2, carbs: 15, fat: 10, portion: 30 },
-    { name: "Helado de vainilla", category: "snacks", calories: 207, protein: 3.5, carbs: 24, fat: 11, portion: 100 },
-    { name: "Helado de chocolate", category: "snacks", calories: 216, protein: 3.8, carbs: 28, fat: 11, portion: 100 },
+    { name: "Helado de vainilla", category: "snacks", calories: 207, protein: 3.5, carbs: 24, fat: 11, portion: 100, unitWeight: 66 },
+    { name: "Helado de chocolate", category: "snacks", calories: 216, protein: 3.8, carbs: 28, fat: 11, portion: 100, unitWeight: 66 },
     { name: "Gelatina (porcion)", category: "snacks", calories: 62, protein: 1.2, carbs: 14, fat: 0, portion: 100 },
     { name: "Arroz inflado con chocolate", category: "snacks", calories: 400, protein: 5, carbs: 70, fat: 12, portion: 100 },
     // Snacks chilenos
@@ -327,8 +327,17 @@ const FOOD_DATABASE = [
     { name: "Coca-Cola (lata)", category: "bebestibles", calories: 139, protein: 0, carbs: 35, fat: 0, portion: 330 },
     { name: "Coca-Cola Zero (lata)", category: "bebestibles", calories: 0, protein: 0, carbs: 0, fat: 0, portion: 330 },
     { name: "Pepsi (lata)", category: "bebestibles", calories: 150, protein: 0, carbs: 41, fat: 0, portion: 355 },
+    { name: "Pepsi Zero (lata)", category: "bebestibles", calories: 0, protein: 0, carbs: 0, fat: 0, portion: 355 },
+    { name: "Pepsi Zero (vaso 250ml)", category: "bebestibles", calories: 0, protein: 0, carbs: 0, fat: 0, portion: 250 },
+    { name: "Pepsi (vaso 250ml)", category: "bebestibles", calories: 106, protein: 0, carbs: 29, fat: 0, portion: 250 },
+    { name: "Coca-Cola (vaso 250ml)", category: "bebestibles", calories: 105, protein: 0, carbs: 26.5, fat: 0, portion: 250 },
+    { name: "Coca-Cola Zero (vaso 250ml)", category: "bebestibles", calories: 0, protein: 0, carbs: 0, fat: 0, portion: 250 },
     { name: "Sprite (lata)", category: "bebestibles", calories: 140, protein: 0, carbs: 38, fat: 0, portion: 355 },
+    { name: "Sprite Zero (lata)", category: "bebestibles", calories: 0, protein: 0, carbs: 0, fat: 0, portion: 355 },
+    { name: "Sprite (vaso 250ml)", category: "bebestibles", calories: 99, protein: 0, carbs: 27, fat: 0, portion: 250 },
     { name: "Fanta (lata)", category: "bebestibles", calories: 160, protein: 0, carbs: 44, fat: 0, portion: 355 },
+    { name: "Fanta Zero (lata)", category: "bebestibles", calories: 2, protein: 0, carbs: 0, fat: 0, portion: 355 },
+    { name: "Fanta (vaso 250ml)", category: "bebestibles", calories: 113, protein: 0, carbs: 31, fat: 0, portion: 250 },
     { name: "Jugo de naranja natural", category: "bebestibles", calories: 45, protein: 0.7, carbs: 10, fat: 0.2, portion: 100 },
     { name: "Cafe negro (taza)", category: "bebestibles", calories: 2, protein: 0.3, carbs: 0, fat: 0, portion: 240 },
     { name: "Cafe con leche", category: "bebestibles", calories: 67, protein: 3.4, carbs: 6, fat: 3.6, portion: 240 },
@@ -364,9 +373,72 @@ const FOOD_DATABASE = [
     { name: "Watts nectar durazno (200ml)", category: "bebestibles", calories: 84, protein: 0.2, carbs: 21, fat: 0, portion: 200 },
     { name: "Livean CCU agua saborizada (500ml)", category: "bebestibles", calories: 10, protein: 0, carbs: 2, fat: 0, portion: 500 },
     { name: "Pepsi Chile (lata 350ml)", category: "bebestibles", calories: 150, protein: 0, carbs: 41, fat: 0, portion: 350 },
+    { name: "Pepsi Zero Chile (lata 350ml)", category: "bebestibles", calories: 0, protein: 0, carbs: 0, fat: 0, portion: 350 },
+    { name: "Coca-Cola Original (botella 500ml)", category: "bebestibles", calories: 210, protein: 0, carbs: 53, fat: 0, portion: 500 },
+    { name: "Coca-Cola Zero (botella 500ml)", category: "bebestibles", calories: 0, protein: 0, carbs: 0, fat: 0, portion: 500 },
+    { name: "Coca-Cola Original (1.5L)", category: "bebestibles", calories: 630, protein: 0, carbs: 158, fat: 0, portion: 1500 },
+    { name: "Coca-Cola Zero (1.5L)", category: "bebestibles", calories: 0, protein: 0, carbs: 0, fat: 0, portion: 1500 },
+    // Bebidas zero y light Chile
+    { name: "Bilz Zero CCU (350ml)", category: "bebestibles", calories: 0, protein: 0, carbs: 0, fat: 0, portion: 350 },
+    { name: "Pap Zero CCU (350ml)", category: "bebestibles", calories: 0, protein: 0, carbs: 0, fat: 0, portion: 350 },
+    { name: "Sprite Zero (botella 500ml)", category: "bebestibles", calories: 0, protein: 0, carbs: 0, fat: 0, portion: 500 },
+    { name: "Fanta Zero (botella 500ml)", category: "bebestibles", calories: 0, protein: 0, carbs: 0, fat: 0, portion: 500 },
+    { name: "Canada Dry ginger ale (lata 350ml)", category: "bebestibles", calories: 140, protein: 0, carbs: 36, fat: 0, portion: 350 },
+    { name: "Canada Dry ginger ale Zero (lata 350ml)", category: "bebestibles", calories: 0, protein: 0, carbs: 0, fat: 0, portion: 350 },
+    // Aguas saborizadas y jugos Chile
+    { name: "Benedictino sin gas (500ml)", category: "bebestibles", calories: 0, protein: 0, carbs: 0, fat: 0, portion: 500 },
+    { name: "Benedictino con gas (500ml)", category: "bebestibles", calories: 0, protein: 0, carbs: 0, fat: 0, portion: 500 },
+    { name: "Vital con gas (500ml)", category: "bebestibles", calories: 0, protein: 0, carbs: 0, fat: 0, portion: 500 },
+    { name: "Vital sin gas (500ml)", category: "bebestibles", calories: 0, protein: 0, carbs: 0, fat: 0, portion: 500 },
+    { name: "Watts jugo naranja (1L porcion 200ml)", category: "bebestibles", calories: 90, protein: 0.4, carbs: 22, fat: 0, portion: 200 },
+    { name: "Watts jugo manzana (200ml)", category: "bebestibles", calories: 88, protein: 0.2, carbs: 22, fat: 0, portion: 200 },
+    { name: "Kapo jugo (200ml)", category: "bebestibles", calories: 80, protein: 0, carbs: 20, fat: 0, portion: 200 },
+    { name: "Andina del Valle nectar (200ml)", category: "bebestibles", calories: 86, protein: 0.3, carbs: 21, fat: 0, portion: 200 },
+    { name: "Jumex nectar mango (335ml)", category: "bebestibles", calories: 160, protein: 0.3, carbs: 40, fat: 0, portion: 335 },
+    // Bebidas deportivas e isotónicas Chile
+    { name: "Gatorade (botella 500ml)", category: "bebestibles", calories: 125, protein: 0, carbs: 31, fat: 0, portion: 500 },
+    { name: "Gatorade Zero (botella 500ml)", category: "bebestibles", calories: 5, protein: 0, carbs: 1, fat: 0, portion: 500 },
+    { name: "Powerade (botella 600ml)", category: "bebestibles", calories: 58, protein: 0, carbs: 14, fat: 0, portion: 600 },
+    { name: "Powerade Zero (botella 600ml)", category: "bebestibles", calories: 0, protein: 0, carbs: 0, fat: 0, portion: 600 },
+    // Energeticas Chile
+    { name: "Red Bull (lata 250ml)", category: "bebestibles", calories: 112, protein: 0, carbs: 28, fat: 0, portion: 250 },
+    { name: "Red Bull Sugar Free (lata 250ml)", category: "bebestibles", calories: 5, protein: 0, carbs: 0, fat: 0, portion: 250 },
+    { name: "Monster Energy (lata 473ml)", category: "bebestibles", calories: 200, protein: 0, carbs: 54, fat: 0, portion: 473 },
+    { name: "Monster Ultra Zero (lata 473ml)", category: "bebestibles", calories: 0, protein: 0, carbs: 0, fat: 0, portion: 473 },
+    { name: "Reign Energy (lata 473ml)", category: "bebestibles", calories: 10, protein: 0, carbs: 0, fat: 0, portion: 473 },
+    { name: "Volt CCU (lata 250ml)", category: "bebestibles", calories: 112, protein: 0, carbs: 28, fat: 0, portion: 250 },
+    // Cervezas Chile
+    { name: "Cristal (lata 350ml)", category: "bebestibles", calories: 148, protein: 1.2, carbs: 12, fat: 0, portion: 350 },
+    { name: "Escudo (lata 350ml)", category: "bebestibles", calories: 155, protein: 1.4, carbs: 13, fat: 0, portion: 350 },
+    { name: "Royal Guard (lata 350ml)", category: "bebestibles", calories: 143, protein: 1, carbs: 11, fat: 0, portion: 350 },
+    { name: "Kunstmann Torobayo (botella 500ml)", category: "bebestibles", calories: 235, protein: 2.1, carbs: 20, fat: 0, portion: 500 },
+    { name: "Becker (lata 350ml)", category: "bebestibles", calories: 150, protein: 1.3, carbs: 12, fat: 0, portion: 350 },
+    { name: "Heineken (lata 350ml)", category: "bebestibles", calories: 150, protein: 1.2, carbs: 11, fat: 0, portion: 350 },
+    { name: "Corona (botella 355ml)", category: "bebestibles", calories: 148, protein: 1.2, carbs: 14, fat: 0, portion: 355 },
+    { name: "Cerveza sin alcohol (lata 350ml)", category: "bebestibles", calories: 73, protein: 0.7, carbs: 16, fat: 0, portion: 350 },
+    // Destilados Chile
+    { name: "Pisco 35° (shot 45ml)", category: "bebestibles", calories: 103, protein: 0, carbs: 0, fat: 0, portion: 45 },
+    { name: "Pisco 40° (shot 45ml)", category: "bebestibles", calories: 117, protein: 0, carbs: 0, fat: 0, portion: 45 },
+    { name: "Piscola (vaso 250ml)", category: "bebestibles", calories: 195, protein: 0, carbs: 26, fat: 0, portion: 250 },
+    { name: "Piscola Zero (vaso 250ml)", category: "bebestibles", calories: 103, protein: 0, carbs: 0, fat: 0, portion: 250 },
+    { name: "Ron con coca cola (vaso 250ml)", category: "bebestibles", calories: 185, protein: 0, carbs: 24, fat: 0, portion: 250 },
+    { name: "Vodka (shot 45ml)", category: "bebestibles", calories: 97, protein: 0, carbs: 0, fat: 0, portion: 45 },
+    { name: "Gin tonic (vaso 250ml)", category: "bebestibles", calories: 171, protein: 0, carbs: 14, fat: 0, portion: 250 },
+    { name: "Terremoto (vaso)", category: "bebestibles", calories: 350, protein: 1, carbs: 45, fat: 3, portion: 300 },
+    // Infusiones y cafe Chile
+    { name: "Nescafe clasico (taza)", category: "bebestibles", calories: 2, protein: 0.3, carbs: 0, fat: 0, portion: 240 },
+    { name: "Cafe expreso (shot)", category: "bebestibles", calories: 3, protein: 0.1, carbs: 0.5, fat: 0, portion: 30 },
+    { name: "Cafe americano (taza)", category: "bebestibles", calories: 5, protein: 0.3, carbs: 0, fat: 0, portion: 240 },
+    { name: "Milo Nestle (vaso preparado)", category: "bebestibles", calories: 180, protein: 5, carbs: 30, fat: 5, portion: 200 },
+    { name: "Te con leche (taza)", category: "bebestibles", calories: 30, protein: 1.5, carbs: 3, fat: 1.2, portion: 240 },
+    { name: "Mate (calabaza)", category: "bebestibles", calories: 5, protein: 0.3, carbs: 1, fat: 0, portion: 200 },
+    { name: "Agüita de hierbas (taza)", category: "bebestibles", calories: 2, protein: 0, carbs: 0, fat: 0, portion: 240 },
     // Bebestibles chilenos
     { name: "Mote con huesillo (vaso)", category: "bebestibles", calories: 280, protein: 3, carbs: 65, fat: 0.5, portion: 300 },
     { name: "Leche con platano (vaso)", category: "bebestibles", calories: 180, protein: 5, carbs: 30, fat: 5, portion: 250 },
+    { name: "Cola de mono (vaso)", category: "bebestibles", calories: 220, protein: 4, carbs: 28, fat: 8, portion: 200 },
+    { name: "Borgoña (vaso)", category: "bebestibles", calories: 160, protein: 0.2, carbs: 22, fat: 0, portion: 200 },
+    { name: "Navegado (taza)", category: "bebestibles", calories: 170, protein: 0.2, carbs: 18, fat: 0, portion: 200 },
 
     // ==================== SALSAS Y CONDIMENTOS ====================
     { name: "Salsa de tomate/Ketchup (cda)", category: "salsas", calories: 15, protein: 0.2, carbs: 4, fat: 0, portion: 15 },
@@ -397,7 +469,7 @@ const FOOD_DATABASE = [
     { name: "Papas fritas McDonald's (mediana)", category: "platos_comunes", calories: 340, protein: 4, carbs: 44, fat: 16, portion: 117 },
     { name: "Nuggets de pollo (6 pzas)", category: "platos_comunes", calories: 280, protein: 14, carbs: 16, fat: 18, portion: 96 },
     { name: "Burrito de pollo", category: "platos_comunes", calories: 450, protein: 22, carbs: 50, fat: 18, portion: 250 },
-    { name: "Taco (unidad)", category: "platos_comunes", calories: 210, protein: 9, carbs: 20, fat: 10, portion: 100 },
+    { name: "Taco (unidad)", category: "platos_comunes", calories: 210, protein: 9, carbs: 20, fat: 10, portion: 100, unitWeight: 85 },
     { name: "Wrap de pollo", category: "platos_comunes", calories: 380, protein: 24, carbs: 36, fat: 15, portion: 200 },
     { name: "Sushi roll (8 pzas)", category: "platos_comunes", calories: 350, protein: 12, carbs: 48, fat: 10, portion: 200 },
     { name: "Sashimi salmon (5 cortes)", category: "platos_comunes", calories: 146, protein: 15, carbs: 0, fat: 9, portion: 70 },
@@ -411,6 +483,11 @@ const FOOD_DATABASE = [
     { name: "Panqueque/Hotcake (unidad)", category: "platos_comunes", calories: 86, protein: 2.4, carbs: 11, fat: 3.5, portion: 38 },
     { name: "Waffle (unidad)", category: "platos_comunes", calories: 218, protein: 5.9, carbs: 25, fat: 11, portion: 75 },
     { name: "Crepe con nutella", category: "platos_comunes", calories: 350, protein: 7, carbs: 48, fat: 15, portion: 150 },
+    { name: "Ramen instantaneo (sobre preparado)", category: "platos_comunes", calories: 380, protein: 9, carbs: 52, fat: 14, portion: 190, fiber: 2, sodium: 1500 },
+    { name: "Ramen instantaneo Maruchan (sobre)", category: "platos_comunes", calories: 375, protein: 8, carbs: 50, fat: 15, portion: 85, fiber: 1.5, sodium: 1600 },
+    { name: "Ramen japones con caldo (plato)", category: "platos_comunes", calories: 450, protein: 18, carbs: 55, fat: 16, portion: 400 },
+    { name: "Ramen coreano picante (sobre)", category: "platos_comunes", calories: 500, protein: 9, carbs: 65, fat: 22, portion: 120, sodium: 1800 },
+    { name: "Fideos instantaneos con sabor (sobre)", category: "platos_comunes", calories: 360, protein: 8, carbs: 48, fat: 14, portion: 85, sodium: 1400 },
     { name: "Empanada de carne (general)", category: "platos_comunes", calories: 300, protein: 12, carbs: 28, fat: 16, portion: 150 },
     { name: "Arepa con queso", category: "platos_comunes", calories: 280, protein: 10, carbs: 32, fat: 12, portion: 150 },
     { name: "Quesadilla", category: "platos_comunes", calories: 380, protein: 18, carbs: 32, fat: 20, portion: 180 },
@@ -619,6 +696,28 @@ class Storage {
             .sort((a, b) => b[1] - a[1])
             .slice(0, limit)
             .map(([name, count]) => ({ name, count }));
+    }
+
+    static getPantry() {
+        return Storage.get('pantry', []);
+    }
+
+    static setPantry(items) {
+        Storage.set('pantry', items);
+    }
+
+    static addPantryItem(item) {
+        const pantry = Storage.getPantry();
+        item.id = Date.now() + Math.random().toString(36).slice(2, 6);
+        pantry.push(item);
+        Storage.setPantry(pantry);
+        return item;
+    }
+
+    static removePantryItem(itemId) {
+        let pantry = Storage.getPantry();
+        pantry = pantry.filter(i => i.id !== itemId);
+        Storage.setPantry(pantry);
     }
 
     static getDarkMode() {

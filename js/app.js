@@ -84,6 +84,7 @@ const app = {
         if (viewName === 'diet') this.renderDietSchedule();
         if (viewName === 'recipes') this.renderRecipes();
         if (viewName === 'add-food') this.renderFrequentFoods();
+        if (viewName === 'pantry') this.renderPantry();
     },
 
     bindMenuToggle() {
@@ -179,6 +180,177 @@ const app = {
         this.renderWater(water, goals.water);
         this.renderStreak();
         this.renderWeeklyComparison();
+        this.renderDeficitPanel(totals);
+    },
+
+    // --- Deficit Panel ---
+    renderDeficitPanel(totals) {
+        const container = document.getElementById('deficitContent');
+        if (!container) return;
+
+        const profile = Storage.getProfile();
+        if (!profile || !profile.age || !profile.weight || !profile.height) {
+            container.innerHTML = `
+                <div class="deficit-no-profile">
+                    <p>Completa tu perfil para ver el balance calorico del dia y proyecciones de peso.</p>
+                    <button class="btn btn-primary" onclick="app.showView('profile')">Ir a Mi Perfil</button>
+                </div>`;
+            return;
+        }
+
+        const tdee = Math.round(this.calculateTDEE(profile));
+        const targetCal = Math.round(this.calculateTargetCalories(profile));
+        const consumed = Math.round(totals.calories);
+        const activity = Storage.getActivity(this.getDateStr());
+        const burned = activity.caloriesBurned || 0;
+        const netConsumed = consumed - burned;
+        const balance = netConsumed - tdee;
+        const deficitFromTarget = consumed - targetCal;
+
+        const isDeficit = balance < 0;
+        const isSurplus = balance > 0;
+        const balanceAbs = Math.abs(Math.round(balance));
+
+        const pctOfTdee = Math.min(Math.round((netConsumed / tdee) * 100), 200);
+        const barPct = Math.min(pctOfTdee, 150);
+        const markerPct = Math.min(100, (tdee / (tdee * 1.5)) * 100);
+
+        let barClass = 'at-goal';
+        if (pctOfTdee < 95) barClass = 'under';
+        else if (pctOfTdee > 105) barClass = 'over';
+
+        let statusText = '';
+        let statusIcon = '';
+        if (isDeficit) {
+            statusText = `Deficit de ${balanceAbs} kcal`;
+            statusIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" style="width:18px;height:18px"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>';
+        } else if (isSurplus) {
+            statusText = `Superavit de ${balanceAbs} kcal`;
+            statusIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" style="width:18px;height:18px"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>';
+        } else {
+            statusText = 'En equilibrio';
+            statusIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="width:18px;height:18px"><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+        }
+
+        // 1 kg grasa = 7700 kcal (OMS/WHO, Hall et al. 2011)
+        const KG_FAT_KCAL = 7700;
+        const dailyDeficit = isDeficit ? balanceAbs : 0;
+        const dailySurplus = isSurplus ? balanceAbs : 0;
+
+        let projectionHtml = '';
+        if (dailyDeficit > 0) {
+            const daysPerKg = Math.round(KG_FAT_KCAL / dailyDeficit);
+            const weeklyLoss = Math.round((dailyDeficit * 7 / KG_FAT_KCAL) * 100) / 100;
+            const monthlyLoss = Math.round((dailyDeficit * 30 / KG_FAT_KCAL) * 100) / 100;
+            projectionHtml = `
+                <div class="deficit-projection">
+                    <div class="deficit-projection-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        Si mantienes este deficit diario
+                    </div>
+                    <div class="deficit-projection-grid">
+                        <div>
+                            <div class="deficit-proj-item">
+                                <span class="deficit-proj-label">Perdida semanal</span>
+                                <span class="deficit-proj-value" style="color:#22c55e">~${weeklyLoss} kg</span>
+                            </div>
+                            <div class="deficit-proj-item">
+                                <span class="deficit-proj-label">Perdida mensual</span>
+                                <span class="deficit-proj-value" style="color:#22c55e">~${monthlyLoss} kg</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="deficit-proj-item">
+                                <span class="deficit-proj-label">Dias para 1 kg</span>
+                                <span class="deficit-proj-value">${daysPerKg} dias</span>
+                            </div>
+                            <div class="deficit-proj-item">
+                                <span class="deficit-proj-label">Deficit diario</span>
+                                <span class="deficit-proj-value" style="color:#22c55e">-${dailyDeficit} kcal</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        } else if (dailySurplus > 0) {
+            const weeklyGain = Math.round((dailySurplus * 7 / KG_FAT_KCAL) * 100) / 100;
+            const monthlyGain = Math.round((dailySurplus * 30 / KG_FAT_KCAL) * 100) / 100;
+            projectionHtml = `
+                <div class="deficit-projection">
+                    <div class="deficit-projection-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        Si mantienes este superavit diario
+                    </div>
+                    <div class="deficit-projection-grid">
+                        <div>
+                            <div class="deficit-proj-item">
+                                <span class="deficit-proj-label">Ganancia semanal</span>
+                                <span class="deficit-proj-value" style="color:var(--danger)">+${weeklyGain} kg</span>
+                            </div>
+                            <div class="deficit-proj-item">
+                                <span class="deficit-proj-label">Ganancia mensual</span>
+                                <span class="deficit-proj-value" style="color:var(--danger)">+${monthlyGain} kg</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="deficit-proj-item">
+                                <span class="deficit-proj-label">Dias para +1 kg</span>
+                                <span class="deficit-proj-value">${Math.round(KG_FAT_KCAL / dailySurplus)} dias</span>
+                            </div>
+                            <div class="deficit-proj-item">
+                                <span class="deficit-proj-label">Superavit diario</span>
+                                <span class="deficit-proj-value" style="color:var(--danger)">+${dailySurplus} kcal</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        const goalLabel = profile.goal === 'lose' ? 'Objetivo deficit' : profile.goal === 'gain' || profile.goal === 'bulk' ? 'Objetivo superavit' : 'Mantenimiento';
+
+        container.innerHTML = `
+            <div class="deficit-summary">
+                <div class="deficit-box consumed">
+                    <div class="deficit-box-value">${consumed}</div>
+                    <div class="deficit-box-label">Consumidas${burned > 0 ? ` (${burned} quemadas)` : ''}</div>
+                </div>
+                <div class="deficit-box tdee">
+                    <div class="deficit-box-value">${tdee}</div>
+                    <div class="deficit-box-label">TDEE (gasto total)</div>
+                </div>
+                <div class="deficit-box result ${isDeficit ? 'deficit-positive' : isSurplus ? 'deficit-negative' : ''}">
+                    <div class="deficit-box-value">${statusIcon} ${isDeficit ? '-' : isSurplus ? '+' : ''}${balanceAbs}</div>
+                    <div class="deficit-box-label">${statusText}</div>
+                </div>
+            </div>
+
+            <div class="deficit-bar-container">
+                <div class="deficit-bar">
+                    <div class="deficit-bar-fill ${barClass}" style="width:${Math.min(barPct, 100)}%"></div>
+                    <div class="deficit-bar-marker" style="left:${markerPct}%"></div>
+                </div>
+                <div class="deficit-bar-labels">
+                    <span>0 kcal</span>
+                    <span>Meta: ${targetCal} (${goalLabel})</span>
+                    <span>TDEE: ${tdee}</span>
+                </div>
+            </div>
+
+            ${projectionHtml}
+
+            <div class="deficit-reference">
+                <div class="deficit-reference-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+                    Referencia cientifica
+                </div>
+                <ul>
+                    <li><span class="highlight">1 kg de grasa corporal = ~7.700 kcal</span> (Hall et al., American Journal of Clinical Nutrition, 2011; OMS)</li>
+                    <li>Un deficit de <span class="highlight">500 kcal/dia</span> produce una perdida de ~0.45 kg por semana (~2 kg/mes)</li>
+                    <li>Un deficit de <span class="highlight">250 kcal/dia</span> es mas moderado: ~1 kg/mes, mas sostenible y preserva masa muscular</li>
+                    <li>Deficit superiores a <span class="highlight">1.000 kcal/dia</span> pueden causar perdida muscular, fatiga y efecto rebote (ACSM, WHO)</li>
+                    <li>Ritmo seguro recomendado: <span class="highlight">0.5 a 1 kg por semana</span> (deficit 500-1000 kcal/dia) segun ACSM y Dietary Guidelines for Americans</li>
+                </ul>
+            </div>
+        `;
     },
 
     // --- Meals List ---
@@ -347,15 +519,15 @@ const app = {
     bindAddFoodForm() {
         document.getElementById('addFoodForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const qty = parseInt(document.getElementById('foodQuantity').value) || 1;
-            const baseCal = parseFloat(document.getElementById('foodCalories').value) || 0;
-            const baseProt = parseFloat(document.getElementById('foodProtein').value) || 0;
-            const baseCarbs = parseFloat(document.getElementById('foodCarbs').value) || 0;
-            const baseFat = parseFloat(document.getElementById('foodFat').value) || 0;
-            const basePortion = parseFloat(document.getElementById('foodPortion').value) || 0;
-            const baseFiber = parseFloat(document.getElementById('foodFiber')?.value) || 0;
-            const baseSugar = parseFloat(document.getElementById('foodSugar')?.value) || 0;
-            const baseSodium = parseFloat(document.getElementById('foodSodium')?.value) || 0;
+            const qty = parseFloat(document.getElementById('foodQuantity').value) || 1;
+            const calories = parseFloat(document.getElementById('foodCalories').value) || 0;
+            const protein = parseFloat(document.getElementById('foodProtein').value) || 0;
+            const carbs = parseFloat(document.getElementById('foodCarbs').value) || 0;
+            const fat = parseFloat(document.getElementById('foodFat').value) || 0;
+            const grams = parseFloat(document.getElementById('foodPortion').value) || 0;
+            const fiber = parseFloat(document.getElementById('foodFiber')?.value) || 0;
+            const sugar = parseFloat(document.getElementById('foodSugar')?.value) || 0;
+            const sodium = parseFloat(document.getElementById('foodSodium')?.value) || 0;
             const name = document.getElementById('foodName').value.trim();
             const prepSelect = document.getElementById('foodPreparation');
             const preparation = (prepSelect && prepSelect.value) || '';
@@ -363,19 +535,19 @@ const app = {
             if (!name) return;
 
             const displayName = preparation
-                ? (qty > 1 ? `${name} (${preparation}) x${qty}` : `${name} (${preparation})`)
-                : (qty > 1 ? `${name} x${qty}` : name);
+                ? (qty !== 1 ? `${name} (${preparation}) x${qty}` : `${name} (${preparation})`)
+                : (qty !== 1 ? `${name} x${qty}` : name);
 
             const entry = {
                 name: displayName,
-                calories: Math.round(baseCal * qty * 10) / 10,
-                protein: Math.round(baseProt * qty * 100) / 100,
-                carbs: Math.round(baseCarbs * qty * 100) / 100,
-                fat: Math.round(baseFat * qty * 100) / 100,
-                fiber: Math.round(baseFiber * qty * 100) / 100,
-                sugar: Math.round(baseSugar * qty * 100) / 100,
-                sodium: Math.round(baseSodium * qty * 10) / 10,
-                portion: Math.round(basePortion * qty * 10) / 10,
+                calories: Math.round(calories * 10) / 10,
+                protein: Math.round(protein * 100) / 100,
+                carbs: Math.round(carbs * 100) / 100,
+                fat: Math.round(fat * 100) / 100,
+                fiber: Math.round(fiber * 100) / 100,
+                sugar: Math.round(sugar * 100) / 100,
+                sodium: Math.round(sodium * 10) / 10,
+                portion: Math.round(grams * 10) / 10,
                 mealType: document.getElementById('mealType').value,
                 quantity: qty,
                 preparation: preparation,
@@ -387,23 +559,23 @@ const app = {
             document.getElementById('foodQuantity').value = 1;
             this._foodRef = null;
             this._selectedPreparation = null;
+            this._lastEditedField = null;
             const prepGroup = document.getElementById('preparationGroup');
             if (prepGroup) prepGroup.style.display = 'none';
             const info = document.getElementById('portionScalingInfo');
             if (info) info.style.display = 'none';
+            this._hideUnitWeightInfo();
+            this._highlightActiveMode();
             this.showView('dashboard');
             this.updateAll();
-            this.showToast(qty > 1 ? `${qty}x ${name} agregado` : 'Alimento agregado');
+            this.showToast(qty !== 1 ? `${qty}x ${name} agregado` : 'Alimento agregado');
         });
     },
 
     fillFoodForm(food) {
+        const unitW = food.unitWeight || food.portion;
         document.getElementById('foodName').value = food.name;
-        document.getElementById('foodCalories').value = food.calories;
-        document.getElementById('foodProtein').value = food.protein;
-        document.getElementById('foodCarbs').value = food.carbs;
-        document.getElementById('foodFat').value = food.fat;
-        document.getElementById('foodPortion').value = food.portion;
+        document.getElementById('foodPortion').value = unitW;
         document.getElementById('foodQuantity').value = 1;
 
         const fiberInput = document.getElementById('foodFiber');
@@ -413,9 +585,9 @@ const app = {
         if (sugarInput) sugarInput.value = food.sugar || '';
         if (sodiumInput) sodiumInput.value = food.sodium || '';
 
-        // Store per-basePortion reference for scaling
         this._foodRef = {
             basePortion: food.portion,
+            unitWeight: unitW,
             calories: food.calories,
             protein: food.protein,
             carbs: food.carbs,
@@ -426,8 +598,13 @@ const app = {
             preparations: food.preparations || null,
         };
         this._selectedPreparation = null;
+        this._lastEditedField = null;
 
-        // Handle preparations dropdown
+        this._showUnitWeightInfo(unitW);
+
+        // Set initial macros scaled to 1 unit
+        this._recalcMacros();
+
         const prepGroup = document.getElementById('preparationGroup');
         const prepSelect = document.getElementById('foodPreparation');
         if (prepGroup && prepSelect) {
@@ -437,22 +614,21 @@ const app = {
                     `<option value="${this.escapeHtml(p.name)}" ${i === 0 ? 'selected' : ''}>${this.escapeHtml(p.name)}</option>`
                 ).join('');
                 prepSelect.onchange = () => this.onPreparationChange(prepSelect);
-                // Apply first preparation by default
                 const firstPrep = food.preparations[0];
                 this._foodRef.calories = firstPrep.calories;
                 this._foodRef.protein = firstPrep.protein;
                 this._foodRef.carbs = firstPrep.carbs;
                 this._foodRef.fat = firstPrep.fat;
-                this.recalcFromPortion();
+                this._recalcMacros();
             } else {
                 prepGroup.style.display = 'none';
                 prepSelect.innerHTML = '';
             }
         }
 
-        // Show scaling info
         const info = document.getElementById('portionScalingInfo');
         if (info) info.style.display = 'none';
+        this._highlightActiveMode();
 
         document.querySelector('.form-panel').scrollIntoView({ behavior: 'smooth' });
     },
@@ -516,21 +692,76 @@ const app = {
         });
     },
 
-    // --- Portion Scaling ---
-    bindPortionScaling() {
-        const portionInput = document.getElementById('foodPortion');
-        const quantityInput = document.getElementById('foodQuantity');
+    // --- Portion Scaling (Gramos <-> Unidades) ---
+    _lastEditedField: null,
 
-        const handler = () => this.recalcFromPortion();
-        portionInput.addEventListener('input', handler);
-        quantityInput.addEventListener('input', handler);
+    bindPortionScaling() {
+        const gramsInput = document.getElementById('foodPortion');
+        const unitsInput = document.getElementById('foodQuantity');
+
+        const snapshotIfNeeded = () => {
+            if (!this._foodRef) this._snapshotManualRef();
+        };
+        gramsInput.addEventListener('focus', snapshotIfNeeded);
+        unitsInput.addEventListener('focus', snapshotIfNeeded);
+
+        gramsInput.addEventListener('input', () => {
+            this._lastEditedField = 'grams';
+            if (this._foodRef) {
+                this._syncFromGrams();
+                this._recalcMacros();
+            }
+            this._highlightActiveMode();
+        });
+        unitsInput.addEventListener('input', () => {
+            this._lastEditedField = 'units';
+            if (this._foodRef) {
+                this._syncFromUnits();
+                this._recalcMacros();
+            }
+            this._highlightActiveMode();
+        });
     },
 
-    recalcFromPortion() {
+    _snapshotManualRef() {
+        const grams = parseFloat(document.getElementById('foodPortion').value) || 100;
+        const qty = parseFloat(document.getElementById('foodQuantity').value) || 1;
+        const uw = qty !== 0 ? grams / qty : grams;
+        this._foodRef = {
+            basePortion: grams,
+            unitWeight: uw,
+            calories: parseFloat(document.getElementById('foodCalories').value) || 0,
+            protein: parseFloat(document.getElementById('foodProtein').value) || 0,
+            carbs: parseFloat(document.getElementById('foodCarbs').value) || 0,
+            fat: parseFloat(document.getElementById('foodFat').value) || 0,
+            fiber: parseFloat(document.getElementById('foodFiber')?.value) || 0,
+            sugar: parseFloat(document.getElementById('foodSugar')?.value) || 0,
+            sodium: parseFloat(document.getElementById('foodSodium')?.value) || 0,
+        };
+        this._showUnitWeightInfo(Math.round(uw * 10) / 10);
+    },
+
+    _syncFromGrams() {
         if (!this._foodRef) return;
-        const portion = parseFloat(document.getElementById('foodPortion').value) || 0;
+        const grams = parseFloat(document.getElementById('foodPortion').value) || 0;
+        const uw = this._foodRef.unitWeight || this._foodRef.basePortion;
+        const units = Math.round((grams / uw) * 100) / 100;
+        document.getElementById('foodQuantity').value = units;
+    },
+
+    _syncFromUnits() {
+        if (!this._foodRef) return;
+        const units = parseFloat(document.getElementById('foodQuantity').value) || 0;
+        const uw = this._foodRef.unitWeight || this._foodRef.basePortion;
+        const grams = Math.round(units * uw * 10) / 10;
+        document.getElementById('foodPortion').value = grams;
+    },
+
+    _recalcMacros() {
+        if (!this._foodRef) return;
+        const grams = parseFloat(document.getElementById('foodPortion').value) || 0;
         const ref = this._foodRef;
-        const ratio = portion / ref.basePortion;
+        const ratio = grams / ref.basePortion;
 
         document.getElementById('foodCalories').value = Math.round(ref.calories * ratio * 10) / 10;
         document.getElementById('foodProtein').value = Math.round(ref.protein * ratio * 100) / 100;
@@ -546,13 +777,37 @@ const app = {
 
         const info = document.getElementById('portionScalingInfo');
         if (info) {
-            if (ratio !== 1) {
-                info.textContent = `Escalado: ${Math.round(ratio * 100)}% de porcion base (${ref.basePortion}g)`;
+            const units = parseFloat(document.getElementById('foodQuantity').value) || 0;
+            const uw = ref.unitWeight || ref.basePortion;
+            if (units !== 1 || grams !== uw) {
+                info.textContent = `${units} unid. x ${uw}g = ${grams}g`;
                 info.style.display = 'block';
             } else {
                 info.style.display = 'none';
             }
         }
+    },
+
+    _highlightActiveMode() {
+        const gramsGroup = document.querySelector('.portion-grams-group');
+        const unitsGroup = document.querySelector('.portion-units-group');
+        if (!gramsGroup || !unitsGroup) return;
+        gramsGroup.classList.toggle('active-mode', this._lastEditedField === 'grams');
+        unitsGroup.classList.toggle('active-mode', this._lastEditedField === 'units');
+    },
+
+    _showUnitWeightInfo(unitWeight) {
+        const el = document.getElementById('unitWeightInfo');
+        const val = document.getElementById('unitWeightValue');
+        if (el && val) {
+            val.textContent = unitWeight;
+            el.style.display = 'flex';
+        }
+    },
+
+    _hideUnitWeightInfo() {
+        const el = document.getElementById('unitWeightInfo');
+        if (el) el.style.display = 'none';
     },
 
     onPreparationChange(selectEl) {
@@ -564,7 +819,7 @@ const app = {
             this._foodRef.carbs = prep.carbs;
             this._foodRef.fat = prep.fat;
             this._selectedPreparation = prep.name;
-            this.recalcFromPortion();
+            this._recalcMacros();
         }
     },
 
@@ -913,8 +1168,24 @@ const app = {
 
             Storage.setProfile(profile);
             this.renderProfileResults(profile);
-            this.showToast('Perfil guardado');
+            this.autoApplyProfileGoals(profile);
+            this.showToast('Perfil guardado y metas actualizadas');
         });
+    },
+
+    autoApplyProfileGoals(profile) {
+        if (!profile || !profile.age || !profile.weight || !profile.height) return;
+        const targetCal = Math.round(this.calculateTargetCalories(profile));
+        const macros = this.calculateMacros(profile);
+        const goals = {
+            calories: targetCal,
+            protein: macros.protein,
+            carbs: macros.carbs,
+            fat: macros.fat,
+            water: Storage.getGoals().water,
+        };
+        Storage.setGoals(goals);
+        this.updateAll();
     },
 
     loadProfileForm() {
@@ -934,7 +1205,10 @@ const app = {
     loadProfileIfExists() {
         const profile = Storage.getProfile();
         if (profile && profile.name) {
-            document.querySelector('.logo').innerHTML = `Nutri<span>Track</span>`;
+            document.querySelector('.logo').innerHTML = `Macros<span>!</span>`;
+        }
+        if (profile && profile.age && profile.weight && profile.height) {
+            this.autoApplyProfileGoals(profile);
         }
     },
 
@@ -1241,7 +1515,7 @@ const app = {
                 </div>
                 <div class="scanner-portion-row">
                     <label>Porcion:</label>
-                    <input type="number" id="scannedPortion" value="${product.portion}" min="1" onchange="app.updateScannedPortion(this.value)" oninput="app.updateScannedPortion(this.value)">
+                    <input type="number" id="scannedPortion" value="${product.portion}" min="0.1" step="any" onchange="app.updateScannedPortion(this.value)" oninput="app.updateScannedPortion(this.value)">
                     <span>gramos</span>
                 </div>
             </div>
@@ -1296,7 +1570,7 @@ const app = {
                 </div>
                 <div class="scanner-portion-row">
                     <label>Porcion:</label>
-                    <input type="number" id="scannedPortion" value="100" min="1" onchange="app.updateScannedPortion(this.value)" oninput="app.updateScannedPortion(this.value)">
+                    <input type="number" id="scannedPortion" value="100" min="0.1" step="any" onchange="app.updateScannedPortion(this.value)" oninput="app.updateScannedPortion(this.value)">
                     <span>gramos</span>
                 </div>
             </div>
@@ -1956,9 +2230,12 @@ const app = {
         statusEl.lastElementChild.textContent = statusText;
     },
 
-    // --- onPortionChange (called from HTML) ---
     onPortionChange() {
-        this.recalcFromPortion();
+        this._lastEditedField = 'grams';
+        if (this._foodRef) {
+            this._syncFromGrams();
+            this._recalcMacros();
+        }
     },
 
     // --- Dark Mode ---
@@ -2029,8 +2306,12 @@ const app = {
         const list = document.getElementById('frequentFoodsList');
         if (!section || !list) return;
 
+        const pantry = Storage.getPantry();
         const frequent = Storage.getFrequentFoods(8);
-        if (frequent.length === 0) {
+        const hasPantry = pantry.length > 0;
+        const hasFrequent = frequent.length > 0;
+
+        if (!hasPantry && !hasFrequent) {
             section.style.display = 'none';
             return;
         }
@@ -2038,23 +2319,154 @@ const app = {
         section.style.display = 'block';
         this._frequentFoodsData = [];
         const foods = FOOD_DATABASE;
+        let html = '';
 
-        list.innerHTML = frequent.map((f, idx) => {
-            const food = foods.find(fd => fd.name === f.name);
-            if (!food) return '';
-            this._frequentFoodsData.push(food);
-            const realIdx = this._frequentFoodsData.length - 1;
-            return `<div class="frequent-food-chip" onclick="app.quickAddFrequent(${realIdx})">
-                <span class="frequent-food-name">${this.escapeHtml(f.name)}</span>
-                <span class="frequent-food-cal">${food.calories} kcal</span>
-            </div>`;
-        }).filter(Boolean).join('');
+        if (hasPantry) {
+            html += '<div style="font-size:.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem;width:100%">Almacen</div>';
+            pantry.forEach(p => {
+                this._frequentFoodsData.push(p);
+                const realIdx = this._frequentFoodsData.length - 1;
+                html += `<div class="frequent-food-chip" onclick="app.quickAddFrequent(${realIdx})" style="border-color:var(--primary)">
+                    <span class="frequent-food-name">${this.escapeHtml(p.name)}</span>
+                    <span class="frequent-food-cal">${p.calories} kcal</span>
+                </div>`;
+            });
+        }
+
+        if (hasFrequent) {
+            if (hasPantry) {
+                html += '<div style="font-size:.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem;margin-top:.5rem;width:100%">Frecuentes</div>';
+            }
+            frequent.forEach(f => {
+                const food = foods.find(fd => fd.name === f.name);
+                if (!food) return;
+                if (pantry.some(p => p.name === food.name)) return;
+                this._frequentFoodsData.push(food);
+                const realIdx = this._frequentFoodsData.length - 1;
+                html += `<div class="frequent-food-chip" onclick="app.quickAddFrequent(${realIdx})">
+                    <span class="frequent-food-name">${this.escapeHtml(f.name)}</span>
+                    <span class="frequent-food-cal">${food.calories} kcal</span>
+                </div>`;
+            });
+        }
+
+        list.innerHTML = html;
     },
 
     quickAddFrequent(idx) {
         const food = this._frequentFoodsData && this._frequentFoodsData[idx];
         if (!food) return;
         this.fillFoodForm(food);
+    },
+
+    // --- Pantry / Almacen ---
+    _pantrySearchFoods: [],
+
+    filterPantrySearch(search) {
+        const container = document.getElementById('pantrySearchResults');
+        if (!container) return;
+        if (!search) { container.innerHTML = ''; return; }
+        const s = search.toLowerCase();
+        const foods = FOOD_DATABASE.filter(f => f.name.toLowerCase().includes(s)).slice(0, 20);
+        this._pantrySearchFoods = foods;
+        container.innerHTML = foods.map((food, idx) => `
+            <div class="food-db-item" onclick="app.addToPantryFromSearch(${idx})">
+                <div>
+                    <div class="food-db-name">${food.name}</div>
+                    <div class="food-db-detail">P: ${food.protein}g | C: ${food.carbs}g | G: ${food.fat}g | ${food.portion}g</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:.5rem">
+                    <span class="food-db-cal">${food.calories} kcal</span>
+                    <button class="btn btn-primary btn-sm">+ Guardar</button>
+                </div>
+            </div>
+        `).join('');
+    },
+
+    addToPantryFromSearch(idx) {
+        const food = this._pantrySearchFoods[idx];
+        if (!food) return;
+        const pantry = Storage.getPantry();
+        if (pantry.some(p => p.name === food.name)) {
+            this.showToast('Este alimento ya esta en tu almacen');
+            return;
+        }
+        Storage.addPantryItem({
+            name: food.name, calories: food.calories, protein: food.protein,
+            carbs: food.carbs, fat: food.fat, portion: food.portion,
+            unitWeight: food.unitWeight || undefined,
+            category: food.category || '', preparations: food.preparations || null,
+            fiber: food.fiber || 0, sugar: food.sugar || 0, sodium: food.sodium || 0,
+        });
+        this.renderPantry();
+        this.showToast('Agregado al almacen: ' + food.name);
+    },
+
+    addCustomPantryItem(event) {
+        event.preventDefault();
+        const name = document.getElementById('pantryCustomName').value.trim();
+        if (!name) return;
+        const pantry = Storage.getPantry();
+        if (pantry.some(p => p.name === name)) {
+            this.showToast('Ya existe un alimento con ese nombre');
+            return;
+        }
+        Storage.addPantryItem({
+            name,
+            calories: parseFloat(document.getElementById('pantryCustomCal').value) || 0,
+            portion: parseFloat(document.getElementById('pantryCustomPortion').value) || 100,
+            protein: parseFloat(document.getElementById('pantryCustomProtein').value) || 0,
+            carbs: parseFloat(document.getElementById('pantryCustomCarbs').value) || 0,
+            fat: parseFloat(document.getElementById('pantryCustomFat').value) || 0,
+            category: 'custom',
+        });
+        document.getElementById('pantryCustomForm').reset();
+        this.renderPantry();
+        this.showToast('Alimento personalizado guardado en almacen');
+    },
+
+    removePantryItem(itemId) {
+        Storage.removePantryItem(itemId);
+        this.renderPantry();
+        this.showToast('Eliminado del almacen');
+    },
+
+    usePantryItem(itemId) {
+        const pantry = Storage.getPantry();
+        const item = pantry.find(p => p.id === itemId);
+        if (!item) return;
+        this.fillFoodForm(item);
+        this.showView('add-food');
+    },
+
+    renderPantry() {
+        const container = document.getElementById('pantryList');
+        if (!container) return;
+        const pantry = Storage.getPantry();
+
+        if (pantry.length === 0) {
+            container.innerHTML = '<p class="empty-state">Tu almacen esta vacio. Busca y agrega alimentos que uses con frecuencia.</p>';
+            return;
+        }
+
+        container.innerHTML = pantry.map(item => `
+            <div class="pantry-item">
+                <div class="pantry-item-info">
+                    <div class="pantry-item-name">${this.escapeHtml(item.name)}</div>
+                    <div class="pantry-item-macros">
+                        <span><span class="macro-dot p"></span> ${item.protein}g</span>
+                        <span><span class="macro-dot c"></span> ${item.carbs}g</span>
+                        <span><span class="macro-dot f"></span> ${item.fat}g</span>
+                        <span>${item.portion}g</span>
+                    </div>
+                </div>
+                <div class="pantry-item-cal">${item.calories} kcal</div>
+                <div class="pantry-item-actions">
+                    <button class="btn btn-primary btn-sm" onclick="app.usePantryItem('${item.id}')" title="Usar">Usar</button>
+                    <button class="btn btn-outline btn-sm" onclick="app.removePantryItem('${item.id}')" title="Eliminar">&times;</button>
+                </div>
+            </div>
+        `).join('');
     },
 
     // --- Photo AI ---
@@ -2426,7 +2838,7 @@ const app = {
 
             doc.setFontSize(20);
             doc.setTextColor(230, 81, 0);
-            doc.text('NutriTrack - Reporte Nutricional', 20, 20);
+            doc.text('Macros! - Reporte Nutricional', 20, 20);
 
             doc.setFontSize(10);
             doc.setTextColor(100);
@@ -2480,7 +2892,7 @@ const app = {
             doc.setTextColor(230, 81, 0);
             doc.text(`Racha actual: ${streak} dias`, 20, y);
 
-            doc.save('NutriTrack-Reporte.pdf');
+            doc.save('Macros-Reporte.pdf');
             this.showToast('PDF exportado');
         } catch (e) {
             this.showToast('Error al generar PDF. Recarga la pagina e intenta de nuevo.');
@@ -2501,7 +2913,7 @@ const app = {
             th{background:#fff3e0;color:#e65100}
             .over{color:#c62828;font-weight:bold}
         </style></head><body>`;
-        html += `<h1>NutriTrack - Reporte Nutricional</h1>`;
+        html += `<h1>Macros! - Reporte Nutricional</h1>`;
         html += `<p>Generado: ${today.toLocaleDateString('es-ES', { dateStyle: 'long' })}</p>`;
 
         if (profile && profile.name) {
@@ -2534,7 +2946,7 @@ const app = {
         const blob = new Blob([html], { type: 'application/msword' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = 'NutriTrack-Reporte.doc';
+        link.download = 'Macros-Reporte.doc';
         link.click();
         URL.revokeObjectURL(link.href);
         this.showToast('Word exportado');

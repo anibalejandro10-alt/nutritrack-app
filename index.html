@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NutriTrack - Seguimiento Nutricional</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Macros! - Seguimiento Nutricional</title>
     <link rel="stylesheet" href="css/styles.css">
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -13,7 +13,7 @@
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
         <nav class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h1 class="logo">Nutri<span>Track</span></h1>
+                <h1 class="logo">Macros<span>!</span></h1>
             </div>
             <ul class="nav-links">
                 <li><a href="#" class="nav-link active" data-view="dashboard">
@@ -58,6 +58,11 @@
                         <li><a href="#" class="nav-link nav-sublink" data-view="stats">Estadisticas</a></li>
                     </ul>
                 </li>
+
+                <li><a href="#" class="nav-link" data-view="pantry">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v4H3z"/><path d="M3 7v13a1 1 0 001 1h16a1 1 0 001-1V7"/><path d="M10 12h4"/></svg>
+                    Almacen
+                </a></li>
 
                 <li><a href="#" class="nav-link" data-view="scanner">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/><path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
@@ -196,13 +201,18 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="panel deficit-panel" id="deficitPanel">
+                    <h2>Balance Calorico del Dia</h2>
+                    <div id="deficitContent" class="deficit-content"></div>
+                </div>
             </section>
 
             <!-- Add Food -->
             <section id="view-add-food" class="view">
                 <h2 class="view-title">Agregar Alimento</h2>
                 <div class="frequent-foods-section" id="frequentFoodsSection" style="display:none">
-                    <h3>Alimentos Frecuentes</h3>
+                    <h3>Acceso Rapido</h3>
                     <div class="frequent-foods-list" id="frequentFoodsList"></div>
                 </div>
                 <div class="add-food-layout">
@@ -236,19 +246,27 @@
                                 <label for="foodName">Nombre del alimento</label>
                                 <input type="text" id="foodName" required placeholder="Ej: Pechuga de pollo">
                             </div>
-                            <div class="form-row triple">
-                                <div class="form-group">
-                                    <label for="foodCalories">Calorias (kcal)</label>
-                                    <input type="number" id="foodCalories" required min="0" placeholder="0">
+                            <div class="form-group">
+                                <label for="foodCalories">Calorias (kcal)</label>
+                                <input type="number" id="foodCalories" required min="0" step="any" placeholder="0">
+                            </div>
+                            <div class="portion-mode-row">
+                                <div class="form-group portion-grams-group">
+                                    <label for="foodPortion">Gramos (g)</label>
+                                    <input type="number" id="foodPortion" required min="0" step="any" placeholder="100" autocomplete="off">
                                 </div>
-                                <div class="form-group">
-                                    <label for="foodPortion">Porcion (g/ml)</label>
-                                    <input type="number" id="foodPortion" required min="0" placeholder="100" oninput="app.onPortionChange()">
+                                <div class="portion-separator">
+                                    <span class="portion-or">o</span>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--text-muted)"><path d="M8 7l4-4 4 4"/><path d="M8 17l4 4 4-4"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
                                 </div>
-                                <div class="form-group">
-                                    <label for="foodQuantity">Cantidad</label>
-                                    <input type="number" id="foodQuantity" min="1" value="1" step="1" placeholder="1">
+                                <div class="form-group portion-units-group">
+                                    <label for="foodQuantity">Unidades</label>
+                                    <input type="number" id="foodQuantity" min="0" value="1" step="any" placeholder="1">
                                 </div>
+                            </div>
+                            <div id="unitWeightInfo" class="unit-weight-info" style="display:none">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                <span>1 unidad = <strong id="unitWeightValue">100</strong>g</span>
                             </div>
                             <div class="form-row triple">
                                 <div class="form-group">
@@ -323,28 +341,28 @@
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c-2 4-6 6-6 11a6 6 0 0012 0c0-5-4-7-6-11z"/><path d="M12 22a3 3 0 003-3c0-3-3-4-3-7-0 3-3 4-3 7a3 3 0 003 3z"/></svg>
                                 Calorias diarias (kcal)
                             </label>
-                            <input type="number" id="goalCaloriesInput" min="500" max="10000" value="2000">
+                            <input type="number" id="goalCaloriesInput" min="500" max="10000" step="any" value="2000">
                         </div>
                         <div class="goal-item">
                             <label>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15.5 2.5c2.5 0 5 2.5 5 5.5 0 4-3 6-6 8l-3 3c-.5.5-1.5.5-2 0l-1-1c-.5-.5-.5-1.5 0-2l3-3"/><path d="M9 15l-4.5 4.5"/><path d="M14.5 7.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/></svg>
                                 Proteinas (g)
                             </label>
-                            <input type="number" id="goalProteinInput" min="0" max="500" value="150">
+                            <input type="number" id="goalProteinInput" min="0" max="500" step="any" value="150">
                         </div>
                         <div class="goal-item">
                             <label>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V12"/><path d="M12 12c-2-2-5-2.5-5-6 2.5 0 4 1.5 5 3.5"/><path d="M12 12c2-2 5-2.5 5-6-2.5 0-4 1.5-5 3.5"/><path d="M12 8c-2-2-4-2.5-4-5.5 2 0 3.5 1.2 4 3"/><path d="M12 8c2-2 4-2.5 4-5.5-2 0-3.5 1.2-4 3"/><path d="M9 22h6"/></svg>
                                 Carbohidratos (g)
                             </label>
-                            <input type="number" id="goalCarbsInput" min="0" max="1000" value="250">
+                            <input type="number" id="goalCarbsInput" min="0" max="1000" step="any" value="250">
                         </div>
                         <div class="goal-item">
                             <label>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c-4 5.5-7 8.5-7 13a7 7 0 0014 0c0-4.5-3-7.5-7-13z"/><path d="M10 16.5a2.5 2.5 0 01-1.5-2c0-1.5 1.5-3 3.5-5"/></svg>
                                 Grasas (g)
                             </label>
-                            <input type="number" id="goalFatInput" min="0" max="300" value="65">
+                            <input type="number" id="goalFatInput" min="0" max="300" step="any" value="65">
                         </div>
                         <div class="goal-item">
                             <label>
@@ -780,6 +798,63 @@
                                 <input type="text" id="photoFoodSearch" placeholder="Buscar alimento..." oninput="app.filterPhotoFoods(this.value)">
                             </div>
                             <div id="photoFoodList" style="max-height:200px;overflow-y:auto"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pantry / Almacen -->
+            <section id="view-pantry" class="view">
+                <h2 class="view-title">Mi Almacen</h2>
+                <p class="pantry-desc">Guarda aqui los alimentos que usas con frecuencia para tenerlos siempre a mano.</p>
+                <div class="pantry-layout">
+                    <div class="panel pantry-add-panel">
+                        <h3>Agregar al Almacen</h3>
+                        <div class="search-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" id="pantrySearch" placeholder="Buscar alimento para guardar..." autocomplete="off" oninput="app.filterPantrySearch(this.value)">
+                        </div>
+                        <div id="pantrySearchResults" class="food-database" style="max-height:300px"></div>
+                        <div class="pantry-custom-add" style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border)">
+                            <h4 style="font-size:.9rem; color:var(--text-secondary); margin-bottom:.75rem">O agrega un alimento personalizado</h4>
+                            <form id="pantryCustomForm" class="food-form" onsubmit="app.addCustomPantryItem(event)">
+                                <div class="form-group">
+                                    <label for="pantryCustomName">Nombre</label>
+                                    <input type="text" id="pantryCustomName" required placeholder="Ej: Mi batido proteico">
+                                </div>
+                                <div class="form-row triple">
+                                    <div class="form-group">
+                                        <label for="pantryCustomCal">Calorias</label>
+                                        <input type="number" id="pantryCustomCal" required min="0" step="any" placeholder="0">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pantryCustomPortion">Porcion (g)</label>
+                                        <input type="number" id="pantryCustomPortion" required min="0" step="any" placeholder="100">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pantryCustomProtein">Proteina (g)</label>
+                                        <input type="number" id="pantryCustomProtein" min="0" step="any" placeholder="0">
+                                    </div>
+                                </div>
+                                <div class="form-row triple">
+                                    <div class="form-group">
+                                        <label for="pantryCustomCarbs">Carbos (g)</label>
+                                        <input type="number" id="pantryCustomCarbs" min="0" step="any" placeholder="0">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pantryCustomFat">Grasa (g)</label>
+                                        <input type="number" id="pantryCustomFat" min="0" step="any" placeholder="0">
+                                    </div>
+                                    <div class="form-group"></div>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block">Guardar en Almacen</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="panel pantry-list-panel">
+                        <h3>Mis Alimentos Guardados</h3>
+                        <div id="pantryList" class="pantry-items-list">
+                            <p class="empty-state">Tu almacen esta vacio. Busca y agrega alimentos que uses con frecuencia.</p>
                         </div>
                     </div>
                 </div>

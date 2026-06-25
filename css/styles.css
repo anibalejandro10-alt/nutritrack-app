@@ -32,6 +32,7 @@ body {
     color: var(--text);
     line-height: 1.6;
     overflow-x: hidden;
+    min-width: 320px;
 }
 
 #app {
@@ -184,6 +185,7 @@ body {
     margin-left: var(--sidebar-width);
     padding: 0 2rem 2rem;
     max-width: 1200px;
+    min-width: 0;
 }
 
 .top-bar {
@@ -2212,6 +2214,107 @@ body {
     text-transform: uppercase;
 }
 
+/* Portion mode row - gramos o unidades */
+.portion-mode-row {
+    display: flex;
+    align-items: flex-end;
+    gap: .5rem;
+}
+
+.portion-grams-group,
+.portion-units-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+}
+
+.portion-separator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .1rem;
+    padding-bottom: .6rem;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    width: 28px;
+}
+
+.portion-or {
+    font-size: .7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--text-muted);
+}
+
+.portion-grams-group input,
+.portion-units-group input {
+    padding: .7rem .85rem;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: .95rem;
+    outline: none;
+    transition: border-color var(--transition);
+    width: 100%;
+}
+
+.portion-grams-group input:focus,
+.portion-units-group input:focus {
+    border-color: var(--primary);
+}
+
+.portion-grams-group label,
+.portion-units-group label {
+    font-size: .85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.portion-grams-group.active-mode label,
+.portion-units-group.active-mode label {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.portion-grams-group.active-mode input,
+.portion-units-group.active-mode input {
+    border-color: var(--primary);
+    background: rgba(230, 81, 0, .04);
+}
+
+.unit-weight-info {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .8rem;
+    color: var(--text-muted);
+    padding: .4rem .75rem;
+    background: var(--bg);
+    border-radius: 6px;
+    margin-top: -.25rem;
+}
+
+.unit-weight-info strong {
+    color: var(--primary);
+}
+
+@media (max-width: 480px) {
+    .portion-mode-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: .75rem;
+    }
+    .portion-separator {
+        flex-direction: row;
+        width: auto;
+        padding-bottom: 0;
+        gap: .5rem;
+    }
+}
+
 /* Food form scaling indicator */
 .portion-scaling-info {
     font-size: .75rem;
@@ -2283,6 +2386,292 @@ body {
 
     .toggle-label {
         font-size: .85rem;
+    }
+}
+
+/* ==================== DEFICIT / BALANCE CALORICO ==================== */
+.deficit-panel {
+    margin-top: 1.5rem;
+}
+
+.deficit-content {
+    margin-top: 1rem;
+}
+
+.deficit-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.deficit-box {
+    text-align: center;
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+}
+
+.deficit-box-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.deficit-box-label {
+    font-size: .75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-top: .2rem;
+}
+
+.deficit-box.consumed .deficit-box-value { color: var(--calories-color); }
+.deficit-box.tdee .deficit-box-value { color: var(--info); }
+.deficit-box.result .deficit-box-value { color: var(--primary); }
+.deficit-box.deficit-positive { border: 1px solid #22c55e; background: rgba(34, 197, 94, .06); }
+.deficit-box.deficit-positive .deficit-box-value { color: #22c55e; }
+.deficit-box.deficit-negative { border: 1px solid var(--danger); background: rgba(198, 40, 40, .06); }
+.deficit-box.deficit-negative .deficit-box-value { color: var(--danger); }
+
+.deficit-bar-container {
+    margin-bottom: 1.25rem;
+}
+
+.deficit-bar {
+    height: 12px;
+    background: var(--bg);
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+}
+
+.deficit-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width .5s ease;
+}
+
+.deficit-bar-fill.under { background: linear-gradient(90deg, #22c55e, #4ade80); }
+.deficit-bar-fill.over { background: linear-gradient(90deg, var(--danger), #ef5350); }
+.deficit-bar-fill.at-goal { background: linear-gradient(90deg, var(--primary), #ff8a50); }
+
+.deficit-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: .75rem;
+    color: var(--text-muted);
+    margin-top: .3rem;
+}
+
+.deficit-bar-marker {
+    position: absolute;
+    top: -3px;
+    width: 3px;
+    height: 18px;
+    background: var(--text);
+    border-radius: 2px;
+    z-index: 2;
+}
+
+.deficit-projection {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.deficit-projection-title {
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: .75rem;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+.deficit-projection-title svg {
+    width: 16px;
+    height: 16px;
+    color: var(--primary);
+}
+
+.deficit-projection-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .75rem;
+}
+
+.deficit-proj-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: .85rem;
+    padding: .4rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.deficit-proj-item:last-child {
+    border-bottom: none;
+}
+
+.deficit-proj-label {
+    color: var(--text-secondary);
+}
+
+.deficit-proj-value {
+    font-weight: 700;
+}
+
+.deficit-reference {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.25rem;
+    border-left: 3px solid var(--info);
+}
+
+.deficit-reference-title {
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: .5rem;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+.deficit-reference-title svg {
+    width: 16px;
+    height: 16px;
+    color: var(--info);
+}
+
+.deficit-reference ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+}
+
+.deficit-reference li {
+    font-size: .8rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    padding-left: 1rem;
+    position: relative;
+}
+
+.deficit-reference li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: .55rem;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--info);
+}
+
+.deficit-reference .highlight {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.deficit-no-profile {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--text-muted);
+}
+
+.deficit-no-profile p {
+    margin-bottom: 1rem;
+    font-size: .9rem;
+}
+
+@media (max-width: 768px) {
+    .deficit-summary {
+        grid-template-columns: 1fr;
+    }
+    .deficit-projection-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==================== PANTRY / ALMACEN ==================== */
+.pantry-desc {
+    font-size: .9rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.pantry-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.pantry-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.pantry-item {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .75rem;
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    transition: background var(--transition);
+}
+
+.pantry-item:hover {
+    background: var(--bg-card-hover);
+}
+
+.pantry-item-info {
+    flex: 1;
+}
+
+.pantry-item-name {
+    font-weight: 600;
+    font-size: .95rem;
+}
+
+.pantry-item-macros {
+    font-size: .75rem;
+    color: var(--text-secondary);
+    display: flex;
+    gap: .75rem;
+    margin-top: .15rem;
+}
+
+.pantry-item-macros span {
+    display: flex;
+    align-items: center;
+    gap: .2rem;
+}
+
+.pantry-item-cal {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: .95rem;
+    white-space: nowrap;
+}
+
+.pantry-item-actions {
+    display: flex;
+    gap: .35rem;
+}
+
+@media (max-width: 1024px) {
+    .pantry-layout {
+        grid-template-columns: 1fr;
     }
 }
 

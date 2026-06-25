@@ -464,4 +464,23 @@ class Storage {
     static setProfile(profile) {
         Storage.set('profile', profile);
     }
+
+    static getActivity(dateStr) {
+        const all = Storage.get('activity', {});
+        return all[dateStr] || { steps: 0, caloriesBurned: 0, distance: 0, type: '', source: 'manual' };
+    }
+
+    static setActivity(dateStr, data) {
+        const all = Storage.get('activity', {});
+        all[dateStr] = data;
+        Storage.set('activity', all);
+    }
+
+    static getActivityGoals() {
+        return Storage.get('activityGoals', { steps: 10000, burn: 500 });
+    }
+
+    static setActivityGoals(goals) {
+        Storage.set('activityGoals', goals);
+    }
 }

@@ -17,7 +17,7 @@
             <ul class="nav-links">
                 <li><a href="#" class="nav-link active" data-view="dashboard">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                    Dashboard
+                    Menu Principal
                 </a></li>
                 <li><a href="#" class="nav-link" data-view="add-food">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
@@ -38,6 +38,10 @@
                 <li><a href="#" class="nav-link" data-view="scanner">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/><path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
                     Escanear
+                </a></li>
+                <li><a href="#" class="nav-link" data-view="activity">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    Actividad
                 </a></li>
                 <li><a href="#" class="nav-link" data-view="stats">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -177,7 +181,7 @@
                                 <label for="foodName">Nombre del alimento</label>
                                 <input type="text" id="foodName" required placeholder="Ej: Pechuga de pollo">
                             </div>
-                            <div class="form-row">
+                            <div class="form-row triple">
                                 <div class="form-group">
                                     <label for="foodCalories">Calorias (kcal)</label>
                                     <input type="number" id="foodCalories" required min="0" placeholder="0">
@@ -185,6 +189,10 @@
                                 <div class="form-group">
                                     <label for="foodPortion">Porcion (g/ml)</label>
                                     <input type="number" id="foodPortion" required min="0" placeholder="100">
+                                </div>
+                                <div class="form-group">
+                                    <label for="foodQuantity">Cantidad</label>
+                                    <input type="number" id="foodQuantity" min="1" value="1" step="1" placeholder="1">
                                 </div>
                             </div>
                             <div class="form-row triple">
@@ -422,6 +430,137 @@
                             </div>
                             <button class="btn btn-primary btn-block" onclick="app.addScannedFood()">Agregar a mi registro</button>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Activity / Apple Health -->
+            <section id="view-activity" class="view">
+                <h2 class="view-title">Actividad Diaria</h2>
+                <div class="activity-layout">
+                    <div class="panel activity-connect-panel">
+                        <div class="activity-health-header">
+                            <svg viewBox="0 0 24 24" class="health-icon" fill="none" stroke-width="1.5">
+                                <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z" fill="#ff2d55" stroke="#ff2d55"/>
+                            </svg>
+                            <div>
+                                <h3>Apple Health</h3>
+                                <p class="activity-subtitle">Conecta con la app Salud de tu iPhone para sincronizar pasos y calorias quemadas automaticamente.</p>
+                            </div>
+                        </div>
+                        <div class="activity-status" id="healthStatus">
+                            <span class="activity-status-dot disconnected"></span>
+                            <span id="healthStatusText">No conectado</span>
+                        </div>
+                        <button class="btn btn-primary btn-block" id="connectHealthBtn" onclick="app.connectAppleHealth()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/></svg>
+                            Conectar con Salud
+                        </button>
+                        <p class="activity-note">Nota: La sincronizacion con Apple Health requiere acceder desde Safari en un iPhone con iOS 15+. Los datos se leen directamente del dispositivo.</p>
+                    </div>
+
+                    <div class="panel activity-data-panel">
+                        <h3>Resumen de hoy</h3>
+                        <div class="activity-cards">
+                            <div class="activity-card steps-card">
+                                <div class="activity-card-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 16l3-3 2 2 5-5 2 2"/><path d="M19 7v6h-6"/></svg>
+                                </div>
+                                <div class="activity-card-info">
+                                    <span class="activity-card-value" id="stepsCount">0</span>
+                                    <span class="activity-card-label">Pasos</span>
+                                </div>
+                                <div class="activity-card-goal">
+                                    <span>Meta: <span id="stepsGoal">10000</span></span>
+                                </div>
+                                <div class="progress-bar"><div class="progress-fill steps-fill" id="stepsBar" style="width:0%"></div></div>
+                            </div>
+
+                            <div class="activity-card calories-burned-card">
+                                <div class="activity-card-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c-2 4-6 6-6 11a6 6 0 0012 0c0-5-4-7-6-11z"/></svg>
+                                </div>
+                                <div class="activity-card-info">
+                                    <span class="activity-card-value" id="caloriesBurned">0</span>
+                                    <span class="activity-card-label">Calorias Quemadas</span>
+                                </div>
+                                <div class="activity-card-goal">
+                                    <span>Meta: <span id="burnGoal">500</span> kcal</span>
+                                </div>
+                                <div class="progress-bar"><div class="progress-fill burn-fill" id="burnBar" style="width:0%"></div></div>
+                            </div>
+
+                            <div class="activity-card distance-card">
+                                <div class="activity-card-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                                </div>
+                                <div class="activity-card-info">
+                                    <span class="activity-card-value" id="distanceWalked">0.0</span>
+                                    <span class="activity-card-label">Km recorridos</span>
+                                </div>
+                            </div>
+
+                            <div class="activity-card balance-card">
+                                <div class="activity-card-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M12 6v14"/><path d="M5 10l7 4 7-4"/></svg>
+                                </div>
+                                <div class="activity-card-info">
+                                    <span class="activity-card-value" id="calorieBalance">0</span>
+                                    <span class="activity-card-label">Balance Calorico Neto</span>
+                                </div>
+                                <span class="activity-card-sublabel" id="balanceLabel">Consumidas - Quemadas</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel activity-manual-panel">
+                        <h3>Registro Manual</h3>
+                        <p class="activity-manual-desc">Si no tienes iPhone, registra tu actividad manualmente.</p>
+                        <form id="activityForm" class="activity-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="manualSteps">Pasos</label>
+                                    <input type="number" id="manualSteps" min="0" placeholder="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="manualCalBurned">Calorias quemadas</label>
+                                    <input type="number" id="manualCalBurned" min="0" placeholder="0">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="manualDistance">Distancia (km)</label>
+                                <input type="number" id="manualDistance" min="0" step="0.1" placeholder="0.0">
+                            </div>
+                            <div class="form-group">
+                                <label for="activityType">Tipo de actividad</label>
+                                <select id="activityType">
+                                    <option value="walking">Caminar</option>
+                                    <option value="running">Correr</option>
+                                    <option value="cycling">Bicicleta</option>
+                                    <option value="gym">Gimnasio</option>
+                                    <option value="swimming">Natacion</option>
+                                    <option value="other">Otro</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Guardar Actividad</button>
+                        </form>
+                    </div>
+
+                    <div class="panel activity-goals-panel">
+                        <h3>Metas de Actividad</h3>
+                        <form id="activityGoalsForm" class="activity-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="goalSteps">Meta de pasos diarios</label>
+                                    <input type="number" id="goalSteps" min="1000" value="10000" step="500">
+                                </div>
+                                <div class="form-group">
+                                    <label for="goalBurn">Meta calorias quemadas</label>
+                                    <input type="number" id="goalBurn" min="100" value="500" step="50">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Guardar Metas</button>
+                        </form>
                     </div>
                 </div>
             </section>

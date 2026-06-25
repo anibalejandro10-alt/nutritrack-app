@@ -15,6 +15,7 @@ const app = {
         this.bindCategoryFilter();
         this.bindHistoryNav();
         this.bindMenuToggle();
+        this.bindActivityForms();
         this.renderFoodDatabase();
         this.updateAll();
         this.loadProfileIfExists();
@@ -48,6 +49,7 @@ const app = {
         if (viewName === 'stats') this.renderStats();
         if (viewName === 'goals') this.loadGoalsForm();
         if (viewName === 'profile') this.loadProfileForm();
+        if (viewName === 'activity') this.renderActivity();
     },
 
     bindMenuToggle() {
@@ -302,23 +304,33 @@ const app = {
     bindAddFoodForm() {
         document.getElementById('addFoodForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const entry = {
-                name: document.getElementById('foodName').value.trim(),
-                calories: parseFloat(document.getElementById('foodCalories').value) || 0,
-                protein: parseFloat(document.getElementById('foodProtein').value) || 0,
-                carbs: parseFloat(document.getElementById('foodCarbs').value) || 0,
-                fat: parseFloat(document.getElementById('foodFat').value) || 0,
-                portion: parseFloat(document.getElementById('foodPortion').value) || 0,
-                mealType: document.getElementById('mealType').value,
-            };
+            const qty = parseInt(document.getElementById('foodQuantity').value) || 1;
+            const baseCal = parseFloat(document.getElementById('foodCalories').value) || 0;
+            const baseProt = parseFloat(document.getElementById('foodProtein').value) || 0;
+            const baseCarbs = parseFloat(document.getElementById('foodCarbs').value) || 0;
+            const baseFat = parseFloat(document.getElementById('foodFat').value) || 0;
+            const basePortion = parseFloat(document.getElementById('foodPortion').value) || 0;
+            const name = document.getElementById('foodName').value.trim();
 
-            if (!entry.name) return;
+            if (!name) return;
+
+            const entry = {
+                name: qty > 1 ? `${name} x${qty}` : name,
+                calories: Math.round(baseCal * qty * 10) / 10,
+                protein: Math.round(baseProt * qty * 10) / 10,
+                carbs: Math.round(baseCarbs * qty * 10) / 10,
+                fat: Math.round(baseFat * qty * 10) / 10,
+                portion: Math.round(basePortion * qty * 10) / 10,
+                mealType: document.getElementById('mealType').value,
+                quantity: qty,
+            };
 
             Storage.addEntry(this.getDateStr(), entry);
             e.target.reset();
+            document.getElementById('foodQuantity').value = 1;
             this.showView('dashboard');
             this.updateAll();
-            this.showToast('Alimento agregado');
+            this.showToast(qty > 1 ? `${qty}x ${name} agregado` : 'Alimento agregado');
         });
     },
 
@@ -329,6 +341,7 @@ const app = {
         document.getElementById('foodCarbs').value = food.carbs;
         document.getElementById('foodFat').value = food.fat;
         document.getElementById('foodPortion').value = food.portion;
+        document.getElementById('foodQuantity').value = 1;
         document.querySelector('.form-panel').scrollIntoView({ behavior: 'smooth' });
     },
 
@@ -1157,6 +1170,140 @@ const app = {
 
         document.getElementById('scannerResultPanel').style.display = 'none';
         this.scannedProduct = null;
+    },
+
+    // --- Activity / Apple Health ---
+    bindActivityForms() {
+        document.getElementById('activityForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const dateStr = this.getDateStr();
+            const data = {
+                steps: parseInt(document.getElementById('manualSteps').value) || 0,
+                caloriesBurned: parseInt(document.getElementById('manualCalBurned').value) || 0,
+                distance: parseFloat(document.getElementById('manualDistance').value) || 0,
+                type: document.getElementById('activityType').value,
+                source: 'manual',
+            };
+            Storage.setActivity(dateStr, data);
+            this.renderActivity();
+            e.target.reset();
+            this.showToast('Actividad guardada');
+        });
+
+        document.getElementById('activityGoalsForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const goals = {
+                steps: parseInt(document.getElementById('goalSteps').value) || 10000,
+                burn: parseInt(document.getElementById('goalBurn').value) || 500,
+            };
+            Storage.setActivityGoals(goals);
+            this.renderActivity();
+            this.showToast('Metas de actividad guardadas');
+        });
+    },
+
+    renderActivity() {
+        const dateStr = this.getDateStr();
+        const activity = Storage.getActivity(dateStr);
+        const goals = Storage.getActivityGoals();
+        const healthConnected = Storage.get('healthConnected', false);
+
+        document.getElementById('stepsCount').textContent = activity.steps.toLocaleString();
+        document.getElementById('caloriesBurned').textContent = activity.caloriesBurned.toLocaleString();
+        document.getElementById('distanceWalked').textContent = activity.distance.toFixed(1);
+        document.getElementById('stepsGoal').textContent = goals.steps.toLocaleString();
+        document.getElementById('burnGoal').textContent = goals.burn;
+        document.getElementById('goalSteps').value = goals.steps;
+        document.getElementById('goalBurn').value = goals.burn;
+
+        const stepsPct = Math.min((activity.steps / goals.steps) * 100, 100);
+        const burnPct = Math.min((activity.caloriesBurned / goals.burn) * 100, 100);
+        document.getElementById('stepsBar').style.width = stepsPct + '%';
+        document.getElementById('burnBar').style.width = burnPct + '%';
+
+        const entries = Storage.getEntries(dateStr);
+        let totalConsumed = 0;
+        entries.forEach(e => totalConsumed += e.calories || 0);
+        const balance = Math.round(totalConsumed - activity.caloriesBurned);
+        document.getElementById('calorieBalance').textContent = (balance > 0 ? '+' : '') + balance;
+        document.getElementById('balanceLabel').textContent =
+            balance > 0 ? 'Superavit calorico' : balance < 0 ? 'Deficit calorico' : 'Equilibrio';
+
+        const dot = document.querySelector('.activity-status-dot');
+        const statusText = document.getElementById('healthStatusText');
+        if (healthConnected) {
+            dot.classList.remove('disconnected');
+            dot.classList.add('connected');
+            statusText.textContent = 'Conectado a Apple Health';
+            document.getElementById('connectHealthBtn').textContent = 'Sincronizar ahora';
+        }
+    },
+
+    connectAppleHealth() {
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+        if (!isIOS) {
+            this.showToast('Apple Health solo disponible en iPhone');
+            this.showHealthFallback();
+            return;
+        }
+
+        if (navigator.health) {
+            navigator.health.requestAuthorization(
+                { read: ['steps', 'calories.active', 'distance'] },
+                () => {
+                    Storage.set('healthConnected', true);
+                    this.syncHealthData();
+                    this.showToast('Conectado a Apple Health');
+                    this.renderActivity();
+                },
+                (err) => {
+                    this.showToast('No se pudo conectar');
+                    this.showHealthFallback();
+                }
+            );
+        } else {
+            Storage.set('healthConnected', true);
+            this.showToast('Modo simulado activado - registra manualmente');
+            this.renderActivity();
+        }
+    },
+
+    syncHealthData() {
+        if (!navigator.health) return;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        navigator.health.query({
+            startDate: today,
+            endDate: new Date(),
+            dataType: 'steps',
+        }, (data) => {
+            const steps = data.reduce((sum, d) => sum + d.value, 0);
+            const dateStr = this.getDateStr();
+            const activity = Storage.getActivity(dateStr);
+            activity.steps = Math.round(steps);
+            activity.source = 'apple_health';
+            Storage.setActivity(dateStr, activity);
+            this.renderActivity();
+        }, () => {});
+
+        navigator.health.query({
+            startDate: today,
+            endDate: new Date(),
+            dataType: 'calories.active',
+        }, (data) => {
+            const cal = data.reduce((sum, d) => sum + d.value, 0);
+            const dateStr = this.getDateStr();
+            const activity = Storage.getActivity(dateStr);
+            activity.caloriesBurned = Math.round(cal);
+            Storage.setActivity(dateStr, activity);
+            this.renderActivity();
+        }, () => {});
+    },
+
+    showHealthFallback() {
+        Storage.set('healthConnected', false);
     },
 
     // --- Toast ---

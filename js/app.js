@@ -5,6 +5,18 @@ const app = {
     scanner: null,
     scannedProduct: null,
 
+    // Reference values for portion scaling (per 100g)
+    _foodRef: null,
+    _selectedPreparation: null,
+
+    // Filtered food lists for safe onclick
+    _filteredFoods: [],
+    _modalFoods: [],
+
+    // Notification timers
+    _mealNotificationTimers: [],
+    _waterReminderTimer: null,
+
     init() {
         this.bindNavigation();
         this.bindDateNav();
@@ -16,9 +28,11 @@ const app = {
         this.bindHistoryNav();
         this.bindMenuToggle();
         this.bindActivityForms();
+        this.bindPortionScaling();
         this.renderFoodDatabase();
         this.updateAll();
         this.loadProfileIfExists();
+        this.initNotifications();
     },
 
     // --- Navigation ---
@@ -50,6 +64,7 @@ const app = {
         if (viewName === 'goals') this.loadGoalsForm();
         if (viewName === 'profile') this.loadProfileForm();
         if (viewName === 'activity') this.renderActivity();
+        if (viewName === 'diet') this.renderDietSchedule();
     },
 
     bindMenuToggle() {
@@ -122,10 +137,10 @@ const app = {
             totals.fat += e.fat || 0;
         });
 
-        document.getElementById('totalCalories').textContent = Math.round(totals.calories);
-        document.getElementById('totalProtein').textContent = Math.round(totals.protein);
-        document.getElementById('totalCarbs').textContent = Math.round(totals.carbs);
-        document.getElementById('totalFat').textContent = Math.round(totals.fat);
+        document.getElementById('totalCalories').textContent = this.fmtNum(totals.calories);
+        document.getElementById('totalProtein').textContent = this.fmtNum(totals.protein);
+        document.getElementById('totalCarbs').textContent = this.fmtNum(totals.carbs);
+        document.getElementById('totalFat').textContent = this.fmtNum(totals.fat);
 
         document.getElementById('goalCalories').textContent = goals.calories;
         document.getElementById('goalProtein').textContent = goals.protein;
@@ -168,18 +183,24 @@ const app = {
             if (!grouped[type]) return;
             html += `<div class="meal-group-title">${mealNames[type]}</div>`;
             grouped[type].forEach(entry => {
+                const hasExtras = (entry.fiber > 0) || (entry.sugar > 0) || (entry.sodium > 0);
                 html += `
                     <div class="meal-item">
                         <div class="meal-item-info">
                             <div class="meal-item-name">${this.escapeHtml(entry.name)}</div>
                             <div class="meal-item-macros">
-                                <span><span class="macro-dot p"></span> ${Math.round(entry.protein || 0)}g</span>
-                                <span><span class="macro-dot c"></span> ${Math.round(entry.carbs || 0)}g</span>
-                                <span><span class="macro-dot f"></span> ${Math.round(entry.fat || 0)}g</span>
-                                <span>${entry.portion || ''}g</span>
+                                <span><span class="macro-dot p"></span> ${this.fmtNum(entry.protein || 0)}g</span>
+                                <span><span class="macro-dot c"></span> ${this.fmtNum(entry.carbs || 0)}g</span>
+                                <span><span class="macro-dot f"></span> ${this.fmtNum(entry.fat || 0)}g</span>
+                                <span>${this.fmtNum(entry.portion || 0)}g</span>
                             </div>
+                            ${hasExtras ? `<div class="nutrient-extras">
+                                ${entry.fiber ? `<span>Fibra: ${this.fmtNum(entry.fiber)}g</span>` : ''}
+                                ${entry.sugar ? `<span>Azucar: ${this.fmtNum(entry.sugar)}g</span>` : ''}
+                                ${entry.sodium ? `<span>Sodio: ${Math.round(entry.sodium)}mg</span>` : ''}
+                            </div>` : ''}
                         </div>
-                        <div class="meal-item-cal">${Math.round(entry.calories)} kcal</div>
+                        <div class="meal-item-cal">${this.fmtNum(entry.calories)} kcal</div>
                         <div class="meal-item-actions">
                             <button onclick="app.deleteEntry('${entry.id}')" title="Eliminar">&#x2715;</button>
                         </div>
@@ -310,24 +331,43 @@ const app = {
             const baseCarbs = parseFloat(document.getElementById('foodCarbs').value) || 0;
             const baseFat = parseFloat(document.getElementById('foodFat').value) || 0;
             const basePortion = parseFloat(document.getElementById('foodPortion').value) || 0;
+            const baseFiber = parseFloat(document.getElementById('foodFiber')?.value) || 0;
+            const baseSugar = parseFloat(document.getElementById('foodSugar')?.value) || 0;
+            const baseSodium = parseFloat(document.getElementById('foodSodium')?.value) || 0;
             const name = document.getElementById('foodName').value.trim();
+            const prepSelect = document.getElementById('foodPreparation');
+            const preparation = (prepSelect && prepSelect.value) || '';
 
             if (!name) return;
 
+            const displayName = preparation
+                ? (qty > 1 ? `${name} (${preparation}) x${qty}` : `${name} (${preparation})`)
+                : (qty > 1 ? `${name} x${qty}` : name);
+
             const entry = {
-                name: qty > 1 ? `${name} x${qty}` : name,
+                name: displayName,
                 calories: Math.round(baseCal * qty * 10) / 10,
-                protein: Math.round(baseProt * qty * 10) / 10,
-                carbs: Math.round(baseCarbs * qty * 10) / 10,
-                fat: Math.round(baseFat * qty * 10) / 10,
+                protein: Math.round(baseProt * qty * 100) / 100,
+                carbs: Math.round(baseCarbs * qty * 100) / 100,
+                fat: Math.round(baseFat * qty * 100) / 100,
+                fiber: Math.round(baseFiber * qty * 100) / 100,
+                sugar: Math.round(baseSugar * qty * 100) / 100,
+                sodium: Math.round(baseSodium * qty * 10) / 10,
                 portion: Math.round(basePortion * qty * 10) / 10,
                 mealType: document.getElementById('mealType').value,
                 quantity: qty,
+                preparation: preparation,
             };
 
             Storage.addEntry(this.getDateStr(), entry);
             e.target.reset();
             document.getElementById('foodQuantity').value = 1;
+            this._foodRef = null;
+            this._selectedPreparation = null;
+            const prepGroup = document.getElementById('preparationGroup');
+            if (prepGroup) prepGroup.style.display = 'none';
+            const info = document.getElementById('portionScalingInfo');
+            if (info) info.style.display = 'none';
             this.showView('dashboard');
             this.updateAll();
             this.showToast(qty > 1 ? `${qty}x ${name} agregado` : 'Alimento agregado');
@@ -342,6 +382,55 @@ const app = {
         document.getElementById('foodFat').value = food.fat;
         document.getElementById('foodPortion').value = food.portion;
         document.getElementById('foodQuantity').value = 1;
+
+        const fiberInput = document.getElementById('foodFiber');
+        const sugarInput = document.getElementById('foodSugar');
+        const sodiumInput = document.getElementById('foodSodium');
+        if (fiberInput) fiberInput.value = food.fiber || '';
+        if (sugarInput) sugarInput.value = food.sugar || '';
+        if (sodiumInput) sodiumInput.value = food.sodium || '';
+
+        // Store per-basePortion reference for scaling
+        this._foodRef = {
+            basePortion: food.portion,
+            calories: food.calories,
+            protein: food.protein,
+            carbs: food.carbs,
+            fat: food.fat,
+            fiber: food.fiber || 0,
+            sugar: food.sugar || 0,
+            sodium: food.sodium || 0,
+            preparations: food.preparations || null,
+        };
+        this._selectedPreparation = null;
+
+        // Handle preparations dropdown
+        const prepGroup = document.getElementById('preparationGroup');
+        const prepSelect = document.getElementById('foodPreparation');
+        if (prepGroup && prepSelect) {
+            if (food.preparations && food.preparations.length > 0) {
+                prepGroup.style.display = 'block';
+                prepSelect.innerHTML = food.preparations.map((p, i) =>
+                    `<option value="${this.escapeHtml(p.name)}" ${i === 0 ? 'selected' : ''}>${this.escapeHtml(p.name)}</option>`
+                ).join('');
+                prepSelect.onchange = () => this.onPreparationChange(prepSelect);
+                // Apply first preparation by default
+                const firstPrep = food.preparations[0];
+                this._foodRef.calories = firstPrep.calories;
+                this._foodRef.protein = firstPrep.protein;
+                this._foodRef.carbs = firstPrep.carbs;
+                this._foodRef.fat = firstPrep.fat;
+                this.recalcFromPortion();
+            } else {
+                prepGroup.style.display = 'none';
+                prepSelect.innerHTML = '';
+            }
+        }
+
+        // Show scaling info
+        const info = document.getElementById('portionScalingInfo');
+        if (info) info.style.display = 'none';
+
         document.querySelector('.form-panel').scrollIntoView({ behavior: 'smooth' });
     },
 
@@ -364,15 +453,26 @@ const app = {
             return;
         }
 
-        container.innerHTML = foods.map(food => `
-            <div class="food-db-item" onclick='app.fillFoodForm(${JSON.stringify(food)})'>
+        this._filteredFoods = foods;
+        container.innerHTML = foods.map((food, idx) => `
+            <div class="food-db-item" onclick="app.selectFood(${idx})">
                 <div>
                     <div class="food-db-name">${food.name}</div>
                     <div class="food-db-detail">P: ${food.protein}g | C: ${food.carbs}g | G: ${food.fat}g | ${food.portion}g</div>
+                    ${food.preparations ? `<div class="food-db-preparations">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3c-1.5 3-5 5-5 9a5 5 0 0010 0c0-4-3.5-6-5-9z"/></svg>
+                        ${food.preparations.length} preparaciones
+                    </div>` : ''}
                 </div>
                 <div class="food-db-cal">${food.calories} kcal</div>
             </div>
         `).join('');
+    },
+
+    selectFood(idx) {
+        if (this._filteredFoods && this._filteredFoods[idx]) {
+            this.fillFoodForm(this._filteredFoods[idx]);
+        }
     },
 
     bindFoodSearch() {
@@ -391,6 +491,58 @@ const app = {
                 this.renderFoodDatabase(btn.dataset.category, search);
             });
         });
+    },
+
+    // --- Portion Scaling ---
+    bindPortionScaling() {
+        const portionInput = document.getElementById('foodPortion');
+        const quantityInput = document.getElementById('foodQuantity');
+
+        const handler = () => this.recalcFromPortion();
+        portionInput.addEventListener('input', handler);
+        quantityInput.addEventListener('input', handler);
+    },
+
+    recalcFromPortion() {
+        if (!this._foodRef) return;
+        const portion = parseFloat(document.getElementById('foodPortion').value) || 0;
+        const ref = this._foodRef;
+        const ratio = portion / ref.basePortion;
+
+        document.getElementById('foodCalories').value = Math.round(ref.calories * ratio * 10) / 10;
+        document.getElementById('foodProtein').value = Math.round(ref.protein * ratio * 100) / 100;
+        document.getElementById('foodCarbs').value = Math.round(ref.carbs * ratio * 100) / 100;
+        document.getElementById('foodFat').value = Math.round(ref.fat * ratio * 100) / 100;
+
+        const fiberInput = document.getElementById('foodFiber');
+        const sugarInput = document.getElementById('foodSugar');
+        const sodiumInput = document.getElementById('foodSodium');
+        if (fiberInput && ref.fiber !== undefined) fiberInput.value = Math.round(ref.fiber * ratio * 100) / 100;
+        if (sugarInput && ref.sugar !== undefined) sugarInput.value = Math.round(ref.sugar * ratio * 100) / 100;
+        if (sodiumInput && ref.sodium !== undefined) sodiumInput.value = Math.round(ref.sodium * ratio * 10) / 10;
+
+        const info = document.getElementById('portionScalingInfo');
+        if (info) {
+            if (ratio !== 1) {
+                info.textContent = `Escalado: ${Math.round(ratio * 100)}% de porcion base (${ref.basePortion}g)`;
+                info.style.display = 'block';
+            } else {
+                info.style.display = 'none';
+            }
+        }
+    },
+
+    onPreparationChange(selectEl) {
+        if (!this._foodRef || !this._foodRef.preparations) return;
+        const prep = this._foodRef.preparations.find(p => p.name === selectEl.value);
+        if (prep) {
+            this._foodRef.calories = prep.calories;
+            this._foodRef.protein = prep.protein;
+            this._foodRef.carbs = prep.carbs;
+            this._foodRef.fat = prep.fat;
+            this._selectedPreparation = prep.name;
+            this.recalcFromPortion();
+        }
     },
 
     // --- Goals ---
@@ -1324,6 +1476,463 @@ const app = {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    },
+
+    fmtNum(n) {
+        if (n === 0) return '0';
+        if (Number.isInteger(n)) return n.toString();
+        const rounded = Math.round(n * 10) / 10;
+        return rounded % 1 === 0 ? rounded.toString() : rounded.toFixed(1);
+    },
+
+    // --- Diet Schedule ---
+    renderDietSchedule() {
+        const schedule = Storage.getMealSchedule();
+        const container = document.getElementById('mealScheduleList');
+        if (!container) return;
+
+        container.innerHTML = schedule.meals.map((meal, idx) => `
+            <div class="meal-slot ${meal.enabled ? '' : 'disabled'}">
+                <div class="meal-slot-header">
+                    <label class="meal-slot-toggle">
+                        <input type="checkbox" ${meal.enabled ? 'checked' : ''} onchange="app.toggleMealSlot(${idx}, this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <input type="text" class="meal-slot-name" value="${this.escapeHtml(meal.name)}"
+                           onchange="app.updateMealSlotName(${idx}, this.value)"
+                           style="border:none;background:transparent;font-weight:600;font-size:.95rem;color:var(--text);outline:none;flex:1">
+                    <div class="meal-slot-time">
+                        <input type="time" value="${meal.time}" onchange="app.updateMealSlotTime(${idx}, this.value)">
+                    </div>
+                    ${schedule.meals.length > 2 ? `<button class="meal-slot-remove" onclick="app.removeMealSlot(${idx})" title="Eliminar">&times;</button>` : ''}
+                </div>
+                <div class="meal-slot-foods">
+                    ${(meal.foods || []).map((f, fi) => `
+                        <div class="meal-slot-food">
+                            <span class="meal-slot-food-name">${this.escapeHtml(f.name)}</span>
+                            <span class="meal-slot-food-cal">${f.calories} kcal</span>
+                            <button onclick="app.removeMealSlotFood(${idx}, ${fi})">&times;</button>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="meal-slot-actions">
+                    <button class="btn btn-outline" onclick="app.addFoodToMealSlot(${idx})">+ Alimento</button>
+                </div>
+            </div>
+        `).join('');
+
+        // Update notification settings UI
+        const notifEnabled = document.getElementById('notificationsEnabled');
+        const reminderMin = document.getElementById('reminderMinutes');
+        if (notifEnabled) notifEnabled.checked = schedule.notificationsEnabled;
+        if (reminderMin) reminderMin.value = schedule.reminderMinutes;
+
+        // Update water reminder UI
+        const waterSettings = Storage.getWaterReminder();
+        const waterEnabled = document.getElementById('waterReminderEnabled');
+        const waterInterval = document.getElementById('waterInterval');
+        const waterStart = document.getElementById('waterStartTime');
+        const waterEnd = document.getElementById('waterEndTime');
+        if (waterEnabled) waterEnabled.checked = waterSettings.enabled;
+        if (waterInterval) waterInterval.value = waterSettings.intervalMinutes;
+        if (waterStart) waterStart.value = waterSettings.startTime;
+        if (waterEnd) waterEnd.value = waterSettings.endTime;
+
+        this.updateNotificationStatus();
+        this.renderDietDayPlan();
+    },
+
+    toggleMealSlot(idx, enabled) {
+        const schedule = Storage.getMealSchedule();
+        schedule.meals[idx].enabled = enabled;
+        Storage.setMealSchedule(schedule);
+        this.renderDietSchedule();
+        if (schedule.notificationsEnabled) this.scheduleMealNotifications();
+    },
+
+    updateMealSlotName(idx, name) {
+        const schedule = Storage.getMealSchedule();
+        schedule.meals[idx].name = name;
+        Storage.setMealSchedule(schedule);
+    },
+
+    updateMealSlotTime(idx, time) {
+        const schedule = Storage.getMealSchedule();
+        schedule.meals[idx].time = time;
+        Storage.setMealSchedule(schedule);
+        if (schedule.notificationsEnabled) this.scheduleMealNotifications();
+    },
+
+    addMealSlot() {
+        const schedule = Storage.getMealSchedule();
+        schedule.meals.push({
+            id: 'custom_' + Date.now(),
+            name: 'Nueva comida',
+            time: '12:00',
+            enabled: true,
+            foods: [],
+        });
+        Storage.setMealSchedule(schedule);
+        this.renderDietSchedule();
+    },
+
+    removeMealSlot(idx) {
+        const schedule = Storage.getMealSchedule();
+        schedule.meals.splice(idx, 1);
+        Storage.setMealSchedule(schedule);
+        this.renderDietSchedule();
+    },
+
+    addFoodToMealSlot(mealIdx) {
+        const modal = document.getElementById('modal');
+        const body = document.getElementById('modalBody');
+        document.getElementById('modalTitle').textContent = 'Agregar alimento al horario';
+
+        let searchHtml = `
+            <div class="search-box" style="margin-bottom:.75rem">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="modalFoodSearch" placeholder="Buscar alimento..." autocomplete="off" oninput="app.filterModalFoods(this.value)">
+            </div>
+            <div id="modalFoodList" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:.3rem"></div>
+        `;
+        body.innerHTML = searchHtml;
+        modal.classList.add('active');
+
+        this._pendingMealSlotIdx = mealIdx;
+        this.filterModalFoods('');
+    },
+
+    filterModalFoods(search) {
+        const container = document.getElementById('modalFoodList');
+        if (!container) return;
+        let foods = FOOD_DATABASE;
+        if (search) {
+            const s = search.toLowerCase();
+            foods = foods.filter(f => f.name.toLowerCase().includes(s));
+        }
+        this._modalFoods = foods.slice(0, 50);
+        container.innerHTML = this._modalFoods.map((food, idx) => `
+            <div class="food-db-item" onclick="app.selectFoodForSlotByIdx(${idx})">
+                <div>
+                    <div class="food-db-name">${food.name}</div>
+                    <div class="food-db-detail">${food.calories} kcal | ${food.portion}g</div>
+                </div>
+            </div>
+        `).join('');
+    },
+
+    selectFoodForSlotByIdx(idx) {
+        const food = this._modalFoods[idx];
+        if (!food) return;
+        this.selectFoodForSlot({
+            name: food.name, calories: food.calories, protein: food.protein,
+            carbs: food.carbs, fat: food.fat, portion: food.portion
+        });
+    },
+
+    selectFoodForSlot(food) {
+        const schedule = Storage.getMealSchedule();
+        const idx = this._pendingMealSlotIdx;
+        if (!schedule.meals[idx].foods) schedule.meals[idx].foods = [];
+        schedule.meals[idx].foods.push(food);
+        Storage.setMealSchedule(schedule);
+        this.closeModal();
+        this.renderDietSchedule();
+        this.showToast('Alimento agregado al horario');
+    },
+
+    removeMealSlotFood(mealIdx, foodIdx) {
+        const schedule = Storage.getMealSchedule();
+        schedule.meals[mealIdx].foods.splice(foodIdx, 1);
+        Storage.setMealSchedule(schedule);
+        this.renderDietSchedule();
+    },
+
+    renderDietDayPlan() {
+        const schedule = Storage.getMealSchedule();
+        const container = document.getElementById('dietDayPlan');
+        const totalsContainer = document.getElementById('dietPlanTotals');
+        if (!container) return;
+
+        const enabledMeals = schedule.meals.filter(m => m.enabled).sort((a, b) => a.time.localeCompare(b.time));
+
+        if (enabledMeals.length === 0) {
+            container.innerHTML = '<p class="empty-state">No hay comidas programadas</p>';
+            if (totalsContainer) totalsContainer.innerHTML = '';
+            return;
+        }
+
+        let totalCal = 0, totalP = 0, totalC = 0, totalF = 0;
+
+        container.innerHTML = enabledMeals.map(meal => {
+            const foods = meal.foods || [];
+            let mealCal = 0;
+            foods.forEach(f => {
+                mealCal += f.calories || 0;
+                totalCal += f.calories || 0;
+                totalP += f.protein || 0;
+                totalC += f.carbs || 0;
+                totalF += f.fat || 0;
+            });
+            return `
+                <div class="diet-plan-meal">
+                    <div class="diet-plan-meal-header">
+                        <span class="diet-plan-meal-name">${this.escapeHtml(meal.name)}</span>
+                        <span class="diet-plan-meal-time">${meal.time}</span>
+                    </div>
+                    <div class="diet-plan-meal-foods">
+                        ${foods.length > 0 ? foods.map(f => `${this.escapeHtml(f.name)} (${f.calories} kcal)`).join(', ') : '<span style="color:var(--text-muted)">Sin alimentos planificados</span>'}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        if (totalsContainer) {
+            totalsContainer.innerHTML = `
+                <h4>Total planificado</h4>
+                <div class="diet-totals-grid">
+                    <div class="diet-total-item">
+                        <div class="diet-total-value" style="color:var(--calories-color)">${Math.round(totalCal)}</div>
+                        <div class="diet-total-label">kcal</div>
+                    </div>
+                    <div class="diet-total-item">
+                        <div class="diet-total-value" style="color:var(--protein-color)">${Math.round(totalP)}g</div>
+                        <div class="diet-total-label">Proteina</div>
+                    </div>
+                    <div class="diet-total-item">
+                        <div class="diet-total-value" style="color:var(--carbs-color)">${Math.round(totalC)}g</div>
+                        <div class="diet-total-label">Carbos</div>
+                    </div>
+                    <div class="diet-total-item">
+                        <div class="diet-total-value" style="color:var(--fat-color)">${Math.round(totalF)}g</div>
+                        <div class="diet-total-label">Grasas</div>
+                    </div>
+                </div>
+            `;
+        }
+    },
+
+    // --- Notifications ---
+    initNotifications() {
+        const schedule = Storage.getMealSchedule();
+        if (schedule.notificationsEnabled) {
+            this.scheduleMealNotifications();
+        }
+        const waterSettings = Storage.getWaterReminder();
+        if (waterSettings.enabled) {
+            this.scheduleWaterReminder();
+        }
+    },
+
+    async requestNotificationPermission() {
+        if (!('Notification' in window)) {
+            this.showToast('Tu navegador no soporta notificaciones');
+            return false;
+        }
+        if (Notification.permission === 'granted') return true;
+        if (Notification.permission === 'denied') {
+            this.showToast('Notificaciones bloqueadas. Activalas en la configuracion del navegador.');
+            return false;
+        }
+        const result = await Notification.requestPermission();
+        return result === 'granted';
+    },
+
+    async toggleMealNotifications(enabled) {
+        const schedule = Storage.getMealSchedule();
+        if (enabled) {
+            const granted = await this.requestNotificationPermission();
+            if (!granted) {
+                document.getElementById('notificationsEnabled').checked = false;
+                return;
+            }
+            schedule.notificationsEnabled = true;
+            Storage.setMealSchedule(schedule);
+            this.scheduleMealNotifications();
+            this.showToast('Notificaciones de comida activadas');
+        } else {
+            schedule.notificationsEnabled = false;
+            Storage.setMealSchedule(schedule);
+            this.clearMealNotifications();
+            this.showToast('Notificaciones de comida desactivadas');
+        }
+        this.updateNotificationStatus();
+    },
+
+    updateReminderMinutes(minutes) {
+        const schedule = Storage.getMealSchedule();
+        schedule.reminderMinutes = parseInt(minutes);
+        Storage.setMealSchedule(schedule);
+        if (schedule.notificationsEnabled) this.scheduleMealNotifications();
+    },
+
+    scheduleMealNotifications() {
+        this.clearMealNotifications();
+        const schedule = Storage.getMealSchedule();
+        if (!schedule.notificationsEnabled) return;
+
+        const now = new Date();
+        schedule.meals.filter(m => m.enabled).forEach(meal => {
+            const [h, m] = meal.time.split(':').map(Number);
+            const mealTime = new Date(now);
+            mealTime.setHours(h, m, 0, 0);
+
+            const reminderTime = new Date(mealTime.getTime() - schedule.reminderMinutes * 60000);
+
+            if (reminderTime > now) {
+                const delay = reminderTime.getTime() - now.getTime();
+                const timer = setTimeout(() => {
+                    this.sendNotification(
+                        `${meal.name} en ${schedule.reminderMinutes} min`,
+                        `Tu ${meal.name.toLowerCase()} esta programado para las ${meal.time}. Prepara tu comida.`,
+                        'meal'
+                    );
+                }, delay);
+                this._mealNotificationTimers.push(timer);
+            }
+        });
+    },
+
+    clearMealNotifications() {
+        this._mealNotificationTimers.forEach(t => clearTimeout(t));
+        this._mealNotificationTimers = [];
+    },
+
+    async toggleWaterReminder(enabled) {
+        const settings = Storage.getWaterReminder();
+        if (enabled) {
+            const granted = await this.requestNotificationPermission();
+            if (!granted) {
+                document.getElementById('waterReminderEnabled').checked = false;
+                return;
+            }
+            settings.enabled = true;
+            Storage.setWaterReminder(settings);
+            this.scheduleWaterReminder();
+            this.showToast('Recordatorio de agua activado');
+        } else {
+            settings.enabled = false;
+            Storage.setWaterReminder(settings);
+            this.clearWaterReminder();
+            this.showToast('Recordatorio de agua desactivado');
+        }
+        this.updateNotificationStatus();
+    },
+
+    updateWaterInterval(minutes) {
+        const settings = Storage.getWaterReminder();
+        settings.intervalMinutes = parseInt(minutes);
+        Storage.setWaterReminder(settings);
+        if (settings.enabled) this.scheduleWaterReminder();
+    },
+
+    updateWaterTimes() {
+        const settings = Storage.getWaterReminder();
+        settings.startTime = document.getElementById('waterStartTime').value;
+        settings.endTime = document.getElementById('waterEndTime').value;
+        Storage.setWaterReminder(settings);
+        if (settings.enabled) this.scheduleWaterReminder();
+    },
+
+    scheduleWaterReminder() {
+        this.clearWaterReminder();
+        const settings = Storage.getWaterReminder();
+        if (!settings.enabled) return;
+
+        const now = new Date();
+        const [startH, startM] = settings.startTime.split(':').map(Number);
+        const [endH, endM] = settings.endTime.split(':').map(Number);
+        const startMin = startH * 60 + startM;
+        const endMin = endH * 60 + endM;
+        const nowMin = now.getHours() * 60 + now.getMinutes();
+
+        if (nowMin >= startMin && nowMin <= endMin) {
+            this._waterReminderTimer = setInterval(() => {
+                const currentMin = new Date().getHours() * 60 + new Date().getMinutes();
+                if (currentMin >= startMin && currentMin <= endMin) {
+                    const water = Storage.getWater(this.getDateStr());
+                    const goals = Storage.getGoals();
+                    if (water < goals.water) {
+                        this.sendNotification(
+                            'Hora de beber agua',
+                            `Llevas ${water} de ${goals.water} vasos hoy. Mantente hidratado.`,
+                            'water'
+                        );
+                    }
+                }
+            }, settings.intervalMinutes * 60000);
+        }
+
+        // Schedule first one if we're in range
+        if (nowMin >= startMin && nowMin <= endMin) {
+            const firstDelay = settings.intervalMinutes * 60000;
+            setTimeout(() => {
+                if (Storage.getWaterReminder().enabled) {
+                    const water = Storage.getWater(this.getDateStr());
+                    const goals = Storage.getGoals();
+                    if (water < goals.water) {
+                        this.sendNotification(
+                            'Hora de beber agua',
+                            `Llevas ${water} de ${goals.water} vasos hoy. Mantente hidratado.`,
+                            'water'
+                        );
+                    }
+                }
+            }, firstDelay);
+        }
+    },
+
+    clearWaterReminder() {
+        if (this._waterReminderTimer) {
+            clearInterval(this._waterReminderTimer);
+            this._waterReminderTimer = null;
+        }
+    },
+
+    sendNotification(title, body, tag) {
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
+        try {
+            new Notification(title, {
+                body,
+                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="80" font-size="80">🍊</text></svg>',
+                tag: tag || 'nutritrack',
+                requireInteraction: false,
+            });
+        } catch (e) {
+            // Fallback for mobile - show in-app toast
+            this.showToast(title + ': ' + body);
+        }
+    },
+
+    updateNotificationStatus() {
+        const statusEl = document.getElementById('notificationStatus');
+        if (!statusEl) return;
+        const schedule = Storage.getMealSchedule();
+        const waterSettings = Storage.getWaterReminder();
+        const hasAny = schedule.notificationsEnabled || waterSettings.enabled;
+
+        const dot = statusEl.querySelector('.activity-status-dot');
+        if (dot) {
+            dot.classList.toggle('connected', hasAny);
+            dot.classList.toggle('disconnected', !hasAny);
+        }
+
+        let statusText = '';
+        if (schedule.notificationsEnabled && waterSettings.enabled) {
+            statusText = `Comidas (${schedule.reminderMinutes} min antes) y agua (cada ${waterSettings.intervalMinutes} min)`;
+        } else if (schedule.notificationsEnabled) {
+            statusText = `Comidas: recordar ${schedule.reminderMinutes} min antes`;
+        } else if (waterSettings.enabled) {
+            statusText = `Agua: cada ${waterSettings.intervalMinutes} min`;
+        } else {
+            statusText = 'Notificaciones desactivadas';
+        }
+        statusEl.lastElementChild.textContent = statusText;
+    },
+
+    // --- onPortionChange (called from HTML) ---
+    onPortionChange() {
+        this.recalcFromPortion();
     },
 };
 

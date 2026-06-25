@@ -1,27 +1,87 @@
 const FOOD_DATABASE = [
     // ==================== PROTEINAS ====================
-    { name: "Pechuga de pollo", category: "proteinas", calories: 165, protein: 31, carbs: 0, fat: 3.6, portion: 100 },
-    { name: "Muslo de pollo (sin piel)", category: "proteinas", calories: 209, protein: 26, carbs: 0, fat: 10.9, portion: 100 },
+    { name: "Pechuga de pollo", category: "proteinas", calories: 165, protein: 31, carbs: 0, fat: 3.6, portion: 100, preparations: [
+        { name: "A la plancha", calories: 165, protein: 31, carbs: 0, fat: 3.6 },
+        { name: "Frita", calories: 220, protein: 27, carbs: 5, fat: 10 },
+        { name: "Al horno", calories: 165, protein: 31, carbs: 0, fat: 3.6 },
+        { name: "Hervida", calories: 150, protein: 30, carbs: 0, fat: 2.5 },
+        { name: "Apanada", calories: 260, protein: 24, carbs: 12, fat: 14 },
+    ] },
+    { name: "Muslo de pollo (sin piel)", category: "proteinas", calories: 209, protein: 26, carbs: 0, fat: 10.9, portion: 100, preparations: [
+        { name: "A la plancha", calories: 209, protein: 26, carbs: 0, fat: 10.9 },
+        { name: "Frito", calories: 260, protein: 24, carbs: 3, fat: 15.5 },
+        { name: "Al horno", calories: 220, protein: 25, carbs: 0, fat: 12 },
+        { name: "Guisado", calories: 200, protein: 23, carbs: 4, fat: 10 },
+    ] },
     { name: "Ala de pollo", category: "proteinas", calories: 203, protein: 30, carbs: 0, fat: 8.1, portion: 100 },
-    { name: "Pollo entero asado", category: "proteinas", calories: 239, protein: 27, carbs: 0, fat: 14, portion: 100 },
-    { name: "Huevo entero", category: "proteinas", calories: 155, protein: 13, carbs: 1.1, fat: 11, portion: 100 },
+    { name: "Pollo entero asado", category: "proteinas", calories: 239, protein: 27, carbs: 0, fat: 14, portion: 100, preparations: [
+        { name: "Asado", calories: 239, protein: 27, carbs: 0, fat: 14 },
+        { name: "Frito", calories: 280, protein: 25, carbs: 5, fat: 18 },
+        { name: "Al horno", calories: 230, protein: 28, carbs: 0, fat: 12 },
+        { name: "Hervido", calories: 200, protein: 29, carbs: 0, fat: 8 },
+    ] },
+    { name: "Huevo entero", category: "proteinas", calories: 155, protein: 13, carbs: 1.1, fat: 11, portion: 100, preparations: [
+        { name: "Cocido/Duro", calories: 155, protein: 13, carbs: 1.1, fat: 11 },
+        { name: "Frito en aceite", calories: 196, protein: 13.6, carbs: 0.8, fat: 15 },
+        { name: "Revuelto", calories: 149, protein: 10.2, carbs: 1.6, fat: 11.2 },
+        { name: "Pochado", calories: 143, protein: 12.6, carbs: 0.7, fat: 10 },
+        { name: "Omelette", calories: 154, protein: 10.6, carbs: 0.6, fat: 12 },
+    ] },
     { name: "Huevo entero (unidad 50g)", category: "proteinas", calories: 78, protein: 6.5, carbs: 0.6, fat: 5.5, portion: 50 },
     { name: "Clara de huevo", category: "proteinas", calories: 52, protein: 11, carbs: 0.7, fat: 0.2, portion: 100 },
-    { name: "Salmon", category: "proteinas", calories: 208, protein: 20, carbs: 0, fat: 13, portion: 100 },
-    { name: "Atun en agua", category: "proteinas", calories: 116, protein: 26, carbs: 0, fat: 1, portion: 100 },
+    { name: "Salmon", category: "proteinas", calories: 208, protein: 20, carbs: 0, fat: 13, portion: 100, preparations: [
+        { name: "A la plancha", calories: 208, protein: 20, carbs: 0, fat: 13 },
+        { name: "Al horno", calories: 183, protein: 25, carbs: 0, fat: 8.5 },
+        { name: "Ahumado", calories: 117, protein: 18, carbs: 0, fat: 4.3 },
+        { name: "Crudo/Sashimi", calories: 127, protein: 20, carbs: 0, fat: 4.7 },
+    ] },
+    { name: "Atun en agua", category: "proteinas", calories: 116, protein: 26, carbs: 0, fat: 1, portion: 100, preparations: [
+        { name: "Directo de lata", calories: 116, protein: 26, carbs: 0, fat: 1 },
+        { name: "A la plancha", calories: 130, protein: 29, carbs: 0, fat: 1.3 },
+        { name: "Al horno", calories: 128, protein: 28, carbs: 0, fat: 1.2 },
+    ] },
     { name: "Atun en aceite", category: "proteinas", calories: 198, protein: 29, carbs: 0, fat: 8, portion: 100 },
-    { name: "Carne molida (magra)", category: "proteinas", calories: 250, protein: 26, carbs: 0, fat: 15, portion: 100 },
+    { name: "Carne molida (magra)", category: "proteinas", calories: 250, protein: 26, carbs: 0, fat: 15, portion: 100, preparations: [
+        { name: "A la plancha", calories: 250, protein: 26, carbs: 0, fat: 15 },
+        { name: "Guisada", calories: 220, protein: 24, carbs: 3, fat: 12 },
+        { name: "Al horno", calories: 245, protein: 26, carbs: 0, fat: 14.5 },
+    ] },
     { name: "Carne molida (extra magra)", category: "proteinas", calories: 176, protein: 26, carbs: 0, fat: 7.6, portion: 100 },
-    { name: "Lomo de cerdo", category: "proteinas", calories: 143, protein: 26, carbs: 0, fat: 3.5, portion: 100 },
+    { name: "Lomo de cerdo", category: "proteinas", calories: 143, protein: 26, carbs: 0, fat: 3.5, portion: 100, preparations: [
+        { name: "A la plancha", calories: 143, protein: 26, carbs: 0, fat: 3.5 },
+        { name: "Al horno", calories: 150, protein: 27, carbs: 0, fat: 4 },
+        { name: "Frito", calories: 210, protein: 24, carbs: 2, fat: 12 },
+        { name: "Guisado", calories: 165, protein: 25, carbs: 2, fat: 6 },
+    ] },
     { name: "Chuleta de cerdo", category: "proteinas", calories: 231, protein: 25, carbs: 0, fat: 14, portion: 100 },
     { name: "Costilla de cerdo", category: "proteinas", calories: 277, protein: 20, carbs: 0, fat: 21, portion: 100 },
-    { name: "Camaron", category: "proteinas", calories: 99, protein: 24, carbs: 0.2, fat: 0.3, portion: 100 },
-    { name: "Tofu firme", category: "proteinas", calories: 144, protein: 17, carbs: 3, fat: 9, portion: 100 },
+    { name: "Camaron", category: "proteinas", calories: 99, protein: 24, carbs: 0.2, fat: 0.3, portion: 100, preparations: [
+        { name: "Cocido", calories: 99, protein: 24, carbs: 0.2, fat: 0.3 },
+        { name: "A la plancha", calories: 120, protein: 24, carbs: 0, fat: 2 },
+        { name: "Frito", calories: 242, protein: 18, carbs: 11, fat: 14 },
+        { name: "Al ajillo", calories: 150, protein: 22, carbs: 2, fat: 6 },
+    ] },
+    { name: "Tofu firme", category: "proteinas", calories: 144, protein: 17, carbs: 3, fat: 9, portion: 100, preparations: [
+        { name: "Natural", calories: 144, protein: 17, carbs: 3, fat: 9 },
+        { name: "A la plancha", calories: 180, protein: 18, carbs: 4, fat: 10 },
+        { name: "Frito", calories: 271, protein: 17, carbs: 11, fat: 20 },
+        { name: "Al vapor", calories: 144, protein: 17, carbs: 3, fat: 9 },
+    ] },
     { name: "Pavo (pechuga)", category: "proteinas", calories: 135, protein: 30, carbs: 0, fat: 1, portion: 100 },
     { name: "Lomo vetado", category: "proteinas", calories: 271, protein: 26, carbs: 0, fat: 18, portion: 100 },
-    { name: "Filete de res", category: "proteinas", calories: 271, protein: 26, carbs: 0, fat: 18, portion: 100 },
+    { name: "Filete de res", category: "proteinas", calories: 271, protein: 26, carbs: 0, fat: 18, portion: 100, preparations: [
+        { name: "A la plancha", calories: 271, protein: 26, carbs: 0, fat: 18 },
+        { name: "Al horno", calories: 250, protein: 27, carbs: 0, fat: 15 },
+        { name: "Frito", calories: 310, protein: 24, carbs: 3, fat: 23 },
+        { name: "Guisado", calories: 240, protein: 25, carbs: 4, fat: 13 },
+    ] },
     { name: "Carne de cordero", category: "proteinas", calories: 294, protein: 25, carbs: 0, fat: 21, portion: 100 },
-    { name: "Merluza", category: "proteinas", calories: 90, protein: 18, carbs: 0, fat: 1.3, portion: 100 },
+    { name: "Merluza", category: "proteinas", calories: 90, protein: 18, carbs: 0, fat: 1.3, portion: 100, preparations: [
+        { name: "A la plancha", calories: 90, protein: 18, carbs: 0, fat: 1.3 },
+        { name: "Frita", calories: 197, protein: 16, carbs: 8, fat: 12 },
+        { name: "Al horno", calories: 95, protein: 19, carbs: 0, fat: 1.5 },
+        { name: "Al vapor", calories: 85, protein: 18, carbs: 0, fat: 1 },
+    ] },
     { name: "Reineta", category: "proteinas", calories: 85, protein: 17, carbs: 0, fat: 1.5, portion: 100 },
     { name: "Congrio", category: "proteinas", calories: 95, protein: 20, carbs: 0, fat: 1.2, portion: 100 },
     { name: "Tilapia", category: "proteinas", calories: 96, protein: 20, carbs: 0, fat: 1.7, portion: 100 },
@@ -40,7 +100,12 @@ const FOOD_DATABASE = [
     { name: "Seitan", category: "proteinas", calories: 370, protein: 75, carbs: 14, fat: 2, portion: 100 },
 
     // ==================== CARBOHIDRATOS ====================
-    { name: "Arroz blanco cocido", category: "carbohidratos", calories: 130, protein: 2.7, carbs: 28, fat: 0.3, portion: 100 },
+    { name: "Arroz blanco cocido", category: "carbohidratos", calories: 130, protein: 2.7, carbs: 28, fat: 0.3, portion: 100, preparations: [
+        { name: "Cocido normal", calories: 130, protein: 2.7, carbs: 28, fat: 0.3 },
+        { name: "Frito", calories: 186, protein: 3.2, carbs: 25, fat: 8.5 },
+        { name: "Al vapor", calories: 130, protein: 2.7, carbs: 28, fat: 0.3 },
+        { name: "Graneado", calories: 135, protein: 2.8, carbs: 28, fat: 0.5 },
+    ] },
     { name: "Arroz integral cocido", category: "carbohidratos", calories: 123, protein: 2.7, carbs: 26, fat: 1, portion: 100 },
     { name: "Arroz basmati cocido", category: "carbohidratos", calories: 121, protein: 3.5, carbs: 25, fat: 0.4, portion: 100 },
     { name: "Pasta cocida", category: "carbohidratos", calories: 131, protein: 5, carbs: 25, fat: 1.1, portion: 100 },
@@ -52,7 +117,12 @@ const FOOD_DATABASE = [
     { name: "Tortilla de harina", category: "carbohidratos", calories: 312, protein: 8, carbs: 52, fat: 8, portion: 100 },
     { name: "Avena", category: "carbohidratos", calories: 389, protein: 17, carbs: 66, fat: 7, portion: 100 },
     { name: "Avena instantanea (sobre)", category: "carbohidratos", calories: 130, protein: 4, carbs: 23, fat: 2.5, portion: 35 },
-    { name: "Papa cocida", category: "carbohidratos", calories: 87, protein: 1.9, carbs: 20, fat: 0.1, portion: 100 },
+    { name: "Papa cocida", category: "carbohidratos", calories: 87, protein: 1.9, carbs: 20, fat: 0.1, portion: 100, preparations: [
+        { name: "Cocida", calories: 87, protein: 1.9, carbs: 20, fat: 0.1 },
+        { name: "Frita", calories: 312, protein: 3.4, carbs: 41, fat: 15 },
+        { name: "Al horno", calories: 93, protein: 2.5, carbs: 21, fat: 0.1 },
+        { name: "Pure", calories: 83, protein: 2, carbs: 14, fat: 2.3 },
+    ] },
     { name: "Papa frita (casera)", category: "carbohidratos", calories: 312, protein: 3.4, carbs: 41, fat: 15, portion: 100 },
     { name: "Pure de papa", category: "carbohidratos", calories: 83, protein: 2, carbs: 14, fat: 2.3, portion: 100 },
     { name: "Camote cocido", category: "carbohidratos", calories: 90, protein: 2, carbs: 21, fat: 0.1, portion: 100 },
@@ -482,5 +552,37 @@ class Storage {
 
     static setActivityGoals(goals) {
         Storage.set('activityGoals', goals);
+    }
+
+    static getMealSchedule() {
+        return Storage.get('mealSchedule', {
+            meals: [
+                { id: 'desayuno', name: 'Desayuno', time: '08:00', enabled: true, foods: [] },
+                { id: 'colacion_am', name: 'Colacion AM', time: '10:30', enabled: false, foods: [] },
+                { id: 'almuerzo', name: 'Almuerzo', time: '13:00', enabled: true, foods: [] },
+                { id: 'colacion_pm', name: 'Colacion PM', time: '16:00', enabled: false, foods: [] },
+                { id: 'cena', name: 'Cena', time: '20:00', enabled: true, foods: [] },
+                { id: 'snack_nocturno', name: 'Snack Nocturno', time: '22:00', enabled: false, foods: [] },
+            ],
+            reminderMinutes: 30,
+            notificationsEnabled: false,
+        });
+    }
+
+    static setMealSchedule(schedule) {
+        Storage.set('mealSchedule', schedule);
+    }
+
+    static getWaterReminder() {
+        return Storage.get('waterReminder', {
+            enabled: false,
+            intervalMinutes: 120,
+            startTime: '08:00',
+            endTime: '22:00',
+        });
+    }
+
+    static setWaterReminder(settings) {
+        Storage.set('waterReminder', settings);
     }
 }

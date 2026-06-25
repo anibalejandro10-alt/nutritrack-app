@@ -31,6 +31,10 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
                     Metas
                 </a></li>
+                <li><a href="#" class="nav-link" data-view="diet">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Dieta y Horarios
+                </a></li>
                 <li><a href="#" class="nav-link" data-view="profile">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     Mi Perfil
@@ -188,7 +192,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="foodPortion">Porcion (g/ml)</label>
-                                    <input type="number" id="foodPortion" required min="0" placeholder="100">
+                                    <input type="number" id="foodPortion" required min="0" placeholder="100" oninput="app.onPortionChange()">
                                 </div>
                                 <div class="form-group">
                                     <label for="foodQuantity">Cantidad</label>
@@ -209,6 +213,20 @@
                                     <input type="number" id="foodFat" min="0" step="0.1" placeholder="0">
                                 </div>
                             </div>
+                            <div class="form-row triple">
+                                <div class="form-group">
+                                    <label for="foodFiber">Fibra (g)</label>
+                                    <input type="number" id="foodFiber" min="0" step="0.1" placeholder="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="foodSugar">Azucar (g)</label>
+                                    <input type="number" id="foodSugar" min="0" step="0.1" placeholder="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="foodSodium">Sodio (mg)</label>
+                                    <input type="number" id="foodSodium" min="0" step="1" placeholder="0">
+                                </div>
+                            </div>
                             <div class="form-group">
                                 <label for="mealType">Tipo de comida</label>
                                 <select id="mealType">
@@ -218,6 +236,13 @@
                                     <option value="snack">Snack</option>
                                 </select>
                             </div>
+                            <div class="form-group" id="preparationGroup" style="display:none">
+                                <label for="foodPreparation">Preparacion</label>
+                                <select id="foodPreparation">
+                                    <option value="">-- Seleccionar --</option>
+                                </select>
+                            </div>
+                            <div id="portionScalingInfo" class="portion-scaling-info" style="display:none"></div>
                             <button type="submit" class="btn btn-primary btn-block">Agregar Alimento</button>
                         </form>
                     </div>
@@ -286,6 +311,78 @@
                             <button class="btn btn-outline" onclick="app.applyPreset('mantenimiento')">Mantenimiento</button>
                             <button class="btn btn-outline" onclick="app.applyPreset('volumen')">Volumen</button>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Diet Schedule -->
+            <section id="view-diet" class="view">
+                <h2 class="view-title">Dieta y Horarios</h2>
+                <div class="diet-layout">
+                    <div class="panel diet-schedule-panel">
+                        <h3>Horarios de Comidas</h3>
+                        <p class="diet-desc">Configura tus horarios de comida y recibe notificaciones para no olvidar ninguna.</p>
+                        <div id="mealScheduleList" class="meal-schedule-list"></div>
+                        <button class="btn btn-outline btn-block" onclick="app.addMealSlot()" style="margin-top:1rem">+ Agregar horario</button>
+                    </div>
+                    <div class="panel diet-notifications-panel">
+                        <h3>Notificaciones</h3>
+                        <div class="notification-settings">
+                            <div class="notification-toggle">
+                                <label class="toggle-label">
+                                    <span>Activar notificaciones de comida</span>
+                                    <input type="checkbox" id="notificationsEnabled" onchange="app.toggleMealNotifications(this.checked)">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-top:1rem">
+                                <label for="reminderMinutes">Recordar antes de cada comida</label>
+                                <select id="reminderMinutes" onchange="app.updateReminderMinutes(this.value)">
+                                    <option value="15">15 minutos antes</option>
+                                    <option value="30" selected>30 minutos antes</option>
+                                    <option value="60">1 hora antes</option>
+                                </select>
+                            </div>
+                            <div class="notification-status" id="notificationStatus">
+                                <span class="activity-status-dot disconnected"></span>
+                                <span>Notificaciones desactivadas</span>
+                            </div>
+                        </div>
+                        <div class="water-reminder-section" style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid var(--border)">
+                            <h3>Recordatorio de Agua</h3>
+                            <div class="notification-toggle" style="margin-top:.75rem">
+                                <label class="toggle-label">
+                                    <span>Activar recordatorio de agua</span>
+                                    <input type="checkbox" id="waterReminderEnabled" onchange="app.toggleWaterReminder(this.checked)">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-top:.75rem">
+                                <label for="waterInterval">Recordar cada</label>
+                                <select id="waterInterval" onchange="app.updateWaterInterval(this.value)">
+                                    <option value="60">1 hora</option>
+                                    <option value="90">1.5 horas</option>
+                                    <option value="120" selected>2 horas</option>
+                                    <option value="180">3 horas</option>
+                                </select>
+                            </div>
+                            <div class="form-row" style="margin-top:.75rem">
+                                <div class="form-group">
+                                    <label for="waterStartTime">Desde</label>
+                                    <input type="time" id="waterStartTime" value="08:00" onchange="app.updateWaterTimes()">
+                                </div>
+                                <div class="form-group">
+                                    <label for="waterEndTime">Hasta</label>
+                                    <input type="time" id="waterEndTime" value="22:00" onchange="app.updateWaterTimes()">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel diet-plan-panel">
+                        <h3>Plan del Dia</h3>
+                        <p class="diet-desc">Vista resumen de tu dieta planificada para hoy.</p>
+                        <div id="dietDayPlan" class="diet-day-plan"></div>
+                        <div class="diet-plan-totals" id="dietPlanTotals"></div>
                     </div>
                 </div>
             </section>

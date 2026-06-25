@@ -2,6 +2,9 @@ const app = {
     currentDate: new Date(),
     historyWeekOffset: 0,
 
+    scanner: null,
+    scannedProduct: null,
+
     init() {
         this.bindNavigation();
         this.bindDateNav();
@@ -40,6 +43,7 @@ const app = {
         document.getElementById('sidebar').classList.remove('open');
         document.getElementById('sidebarOverlay').classList.remove('active');
 
+        if (viewName !== 'scanner') this.stopScanner();
         if (viewName === 'history') this.renderHistory();
         if (viewName === 'stats') this.renderStats();
         if (viewName === 'goals') this.loadGoalsForm();
@@ -887,6 +891,211 @@ const app = {
         Storage.setGoals(goals);
         this.updateAll();
         this.showToast('Metas actualizadas segun tu perfil');
+    },
+
+    // --- Barcode Scanner ---
+    startScanner() {
+        if (this.scanner) return;
+
+        const config = {
+            fps: 10,
+            qrbox: { width: 250, height: 150 },
+            formatsToSupport: [
+                Html5QrcodeSupportedFormats.EAN_13,
+                Html5QrcodeSupportedFormats.EAN_8,
+                Html5QrcodeSupportedFormats.UPC_A,
+                Html5QrcodeSupportedFormats.UPC_E,
+                Html5QrcodeSupportedFormats.CODE_128,
+                Html5QrcodeSupportedFormats.CODE_39,
+            ]
+        };
+
+        this.scanner = new Html5Qrcode("scannerReader");
+
+        document.getElementById('startScanBtn').style.display = 'none';
+        document.getElementById('stopScanBtn').style.display = 'flex';
+
+        this.scanner.start(
+            { facingMode: "environment" },
+            config,
+            (decodedText) => {
+                this.onBarcodeScanned(decodedText);
+            },
+            () => {}
+        ).catch((err) => {
+            this.scanner = null;
+            document.getElementById('startScanBtn').style.display = 'flex';
+            document.getElementById('stopScanBtn').style.display = 'none';
+            this.showToast('No se pudo acceder a la camara');
+        });
+    },
+
+    stopScanner() {
+        if (this.scanner) {
+            this.scanner.stop().then(() => {
+                this.scanner.clear();
+                this.scanner = null;
+            }).catch(() => {
+                this.scanner = null;
+            });
+        }
+        const startBtn = document.getElementById('startScanBtn');
+        const stopBtn = document.getElementById('stopScanBtn');
+        if (startBtn) startBtn.style.display = 'flex';
+        if (stopBtn) stopBtn.style.display = 'none';
+    },
+
+    onBarcodeScanned(barcode) {
+        this.stopScanner();
+        this.showToast('Codigo detectado: ' + barcode);
+        this.searchBarcode(barcode);
+    },
+
+    searchBarcode(barcode) {
+        if (!barcode || !barcode.trim()) {
+            this.showToast('Ingresa un codigo de barras');
+            return;
+        }
+
+        barcode = barcode.trim();
+        const resultPanel = document.getElementById('scannerResultPanel');
+        const resultContainer = document.getElementById('scannerResult');
+
+        resultPanel.style.display = 'flex';
+        resultContainer.innerHTML = `
+            <div class="scanner-loading">
+                <div class="spinner"></div>
+                <p>Buscando producto...</p>
+            </div>
+        `;
+
+        fetch(`https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(barcode)}.json`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 1 && data.product) {
+                    this.displayScannedProduct(data.product);
+                } else {
+                    resultContainer.innerHTML = `
+                        <div class="scanner-error">
+                            <p>Producto no encontrado para el codigo: <strong>${this.escapeHtml(barcode)}</strong></p>
+                            <p style="margin-top:.5rem;font-size:.85rem;color:var(--text-muted)">
+                                Intenta con otro codigo o agrega el alimento manualmente.
+                            </p>
+                            <button class="btn btn-outline" style="margin-top:1rem" onclick="app.showView('add-food')">Agregar manualmente</button>
+                        </div>
+                    `;
+                    this.scannedProduct = null;
+                }
+            })
+            .catch(() => {
+                resultContainer.innerHTML = `
+                    <div class="scanner-error">
+                        <p>Error de conexion. Verifica tu internet e intenta de nuevo.</p>
+                    </div>
+                `;
+                this.scannedProduct = null;
+            });
+    },
+
+    displayScannedProduct(product) {
+        const nutrients = product.nutriments || {};
+        const name = product.product_name || product.product_name_es || 'Producto desconocido';
+        const brand = product.brands || '';
+        const image = product.image_front_small_url || product.image_url || '';
+        const servingSize = product.serving_quantity || product.product_quantity || 100;
+
+        const cal = Math.round(nutrients['energy-kcal_100g'] || nutrients['energy-kcal'] || (nutrients.energy_100g || 0) / 4.184 || 0);
+        const protein = Math.round((nutrients.proteins_100g || 0) * 10) / 10;
+        const carbs = Math.round((nutrients.carbohydrates_100g || 0) * 10) / 10;
+        const fat = Math.round((nutrients.fat_100g || 0) * 10) / 10;
+
+        this.scannedProduct = {
+            name: brand ? `${name} (${brand})` : name,
+            calories: cal,
+            protein: protein,
+            carbs: carbs,
+            fat: fat,
+            portion: 100,
+            per100: { calories: cal, protein, carbs, fat }
+        };
+
+        const resultContainer = document.getElementById('scannerResult');
+        resultContainer.innerHTML = `
+            <div class="scanner-product-card">
+                ${image ? `<img src="${image}" alt="${this.escapeHtml(name)}" class="scanner-product-image">` : ''}
+                <div class="scanner-product-name">${this.escapeHtml(name)}</div>
+                ${brand ? `<div class="scanner-product-brand">${this.escapeHtml(brand)}</div>` : ''}
+                <div class="scanner-nutri-grid">
+                    <div class="scanner-nutri-item highlight">
+                        <div class="scanner-nutri-value" id="scannedCal">${cal}</div>
+                        <div class="scanner-nutri-label">Calorias (kcal)</div>
+                    </div>
+                    <div class="scanner-nutri-item">
+                        <div class="scanner-nutri-value" id="scannedProtein">${protein}g</div>
+                        <div class="scanner-nutri-label">Proteinas</div>
+                    </div>
+                    <div class="scanner-nutri-item">
+                        <div class="scanner-nutri-value" id="scannedCarbs">${carbs}g</div>
+                        <div class="scanner-nutri-label">Carbohidratos</div>
+                    </div>
+                    <div class="scanner-nutri-item">
+                        <div class="scanner-nutri-value" id="scannedFat">${fat}g</div>
+                        <div class="scanner-nutri-label">Grasas</div>
+                    </div>
+                </div>
+                <div class="scanner-portion-row">
+                    <label>Porcion:</label>
+                    <input type="number" id="scannedPortion" value="100" min="1" onchange="app.updateScannedPortion(this.value)" oninput="app.updateScannedPortion(this.value)">
+                    <span>gramos</span>
+                </div>
+            </div>
+        `;
+    },
+
+    updateScannedPortion(grams) {
+        if (!this.scannedProduct || !this.scannedProduct.per100) return;
+        const g = parseFloat(grams) || 100;
+        const ratio = g / 100;
+        const p = this.scannedProduct.per100;
+
+        this.scannedProduct.portion = g;
+        this.scannedProduct.calories = Math.round(p.calories * ratio);
+        this.scannedProduct.protein = Math.round(p.protein * ratio * 10) / 10;
+        this.scannedProduct.carbs = Math.round(p.carbs * ratio * 10) / 10;
+        this.scannedProduct.fat = Math.round(p.fat * ratio * 10) / 10;
+
+        const calEl = document.getElementById('scannedCal');
+        const protEl = document.getElementById('scannedProtein');
+        const carbEl = document.getElementById('scannedCarbs');
+        const fatEl = document.getElementById('scannedFat');
+        if (calEl) calEl.textContent = this.scannedProduct.calories;
+        if (protEl) protEl.textContent = this.scannedProduct.protein + 'g';
+        if (carbEl) carbEl.textContent = this.scannedProduct.carbs + 'g';
+        if (fatEl) fatEl.textContent = this.scannedProduct.fat + 'g';
+    },
+
+    addScannedFood() {
+        if (!this.scannedProduct) {
+            this.showToast('No hay producto escaneado');
+            return;
+        }
+
+        const entry = {
+            name: this.scannedProduct.name,
+            calories: this.scannedProduct.calories,
+            protein: this.scannedProduct.protein,
+            carbs: this.scannedProduct.carbs,
+            fat: this.scannedProduct.fat,
+            portion: this.scannedProduct.portion,
+            mealType: document.getElementById('scannerMealType').value,
+        };
+
+        Storage.addEntry(this.getDateStr(), entry);
+        this.updateAll();
+        this.showToast('Producto agregado: ' + entry.name);
+
+        document.getElementById('scannerResultPanel').style.display = 'none';
+        this.scannedProduct = null;
     },
 
     // --- Toast ---

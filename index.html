@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NutriTrack - Seguimiento Nutricional</title>
     <link rel="stylesheet" href="css/styles.css">
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body>
     <div id="app">
@@ -33,6 +34,10 @@
                 <li><a href="#" class="nav-link" data-view="profile">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     Mi Perfil
+                </a></li>
+                <li><a href="#" class="nav-link" data-view="scanner">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/><path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+                    Escanear
                 </a></li>
                 <li><a href="#" class="nav-link" data-view="stats">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -152,9 +157,12 @@
                             <button class="cat-btn" data-category="frutas">Frutas</button>
                             <button class="cat-btn" data-category="verduras">Verduras</button>
                             <button class="cat-btn" data-category="lacteos">Lacteos</button>
+                            <button class="cat-btn" data-category="grasas">Grasas</button>
                             <button class="cat-btn" data-category="snacks">Snacks</button>
                             <button class="cat-btn" data-category="bebidas">Bebidas</button>
-                            <button class="cat-btn" data-category="chileno">Productos Chilenos</button>
+                            <button class="cat-btn" data-category="salsas">Salsas</button>
+                            <button class="cat-btn" data-category="comida_rapida">Comida Rapida</button>
+                            <button class="cat-btn" data-category="chileno">Chileno</button>
                         </div>
                         <div id="foodDatabase" class="food-database"></div>
                     </div>
@@ -352,6 +360,63 @@
                                     <span>Bajo</span><span>Normal</span><span>Sobrepeso</span><span>Obesidad</span>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scanner -->
+            <section id="view-scanner" class="view">
+                <h2 class="view-title">Escanear Codigo de Barras</h2>
+                <div class="scanner-layout">
+                    <div class="panel scanner-panel">
+                        <div class="scanner-instructions">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="scanner-icon-big">
+                                <path d="M3 7V5a2 2 0 012-2h2"/>
+                                <path d="M17 3h2a2 2 0 012 2v2"/>
+                                <path d="M21 17v2a2 2 0 01-2 2h-2"/>
+                                <path d="M7 21H5a2 2 0 01-2-2v-2"/>
+                                <line x1="7" y1="12" x2="17" y2="12"/>
+                            </svg>
+                            <p>Escanea el codigo de barras de cualquier producto alimenticio para obtener su informacion nutricional automaticamente.</p>
+                        </div>
+                        <div id="scannerContainer" class="scanner-container">
+                            <div id="scannerReader"></div>
+                        </div>
+                        <div class="scanner-actions">
+                            <button class="btn btn-primary btn-block" id="startScanBtn" onclick="app.startScanner()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px">
+                                    <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+                                    <circle cx="12" cy="13" r="4"/>
+                                </svg>
+                                Iniciar Camara
+                            </button>
+                            <button class="btn btn-outline btn-block" id="stopScanBtn" onclick="app.stopScanner()" style="display:none">
+                                Detener Camara
+                            </button>
+                        </div>
+                        <div id="scannerManualEntry" class="scanner-manual">
+                            <p class="scanner-manual-label">O ingresa el codigo de barras manualmente:</p>
+                            <div class="scanner-manual-row">
+                                <input type="text" id="manualBarcode" placeholder="Ej: 7801620009847" class="scanner-manual-input">
+                                <button class="btn btn-primary" onclick="app.searchBarcode(document.getElementById('manualBarcode').value)">Buscar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel scanner-result-panel" id="scannerResultPanel" style="display:none">
+                        <h3>Producto Encontrado</h3>
+                        <div id="scannerResult" class="scanner-result"></div>
+                        <div class="scanner-result-actions">
+                            <div class="form-group">
+                                <label for="scannerMealType">Tipo de comida</label>
+                                <select id="scannerMealType">
+                                    <option value="desayuno">Desayuno</option>
+                                    <option value="almuerzo">Almuerzo</option>
+                                    <option value="cena">Cena</option>
+                                    <option value="snack">Snack</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary btn-block" onclick="app.addScannedFood()">Agregar a mi registro</button>
                         </div>
                     </div>
                 </div>

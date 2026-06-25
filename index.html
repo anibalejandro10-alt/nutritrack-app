@@ -6,6 +6,7 @@
     <title>NutriTrack - Seguimiento Nutricional</title>
     <link rel="stylesheet" href="css/styles.css">
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
     <div id="app">
@@ -17,40 +18,68 @@
             <ul class="nav-links">
                 <li><a href="#" class="nav-link active" data-view="dashboard">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                    Menu Principal
+                    Inicio
                 </a></li>
-                <li><a href="#" class="nav-link" data-view="add-food">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-                    Agregar Alimento
-                </a></li>
-                <li><a href="#" class="nav-link" data-view="history">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    Historial
-                </a></li>
-                <li><a href="#" class="nav-link" data-view="goals">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-                    Metas
-                </a></li>
-                <li><a href="#" class="nav-link" data-view="diet">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    Dieta y Horarios
-                </a></li>
-                <li><a href="#" class="nav-link" data-view="profile">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    Mi Perfil
-                </a></li>
+
+                <li class="nav-group">
+                    <a href="#" class="nav-link nav-group-toggle" data-group="alimentacion">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+                        Alimentacion
+                        <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </a>
+                    <ul class="nav-submenu" data-submenu="alimentacion">
+                        <li><a href="#" class="nav-link nav-sublink" data-view="add-food">Agregar Alimento</a></li>
+                        <li><a href="#" class="nav-link nav-sublink" data-view="photo-ai">Foto IA</a></li>
+                        <li><a href="#" class="nav-link nav-sublink" data-view="recipes">Recetas</a></li>
+                        <li><a href="#" class="nav-link nav-sublink" data-view="history">Historial</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-group">
+                    <a href="#" class="nav-link nav-group-toggle" data-group="planificacion">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                        Planificacion
+                        <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </a>
+                    <ul class="nav-submenu" data-submenu="planificacion">
+                        <li><a href="#" class="nav-link nav-sublink" data-view="goals">Metas</a></li>
+                        <li><a href="#" class="nav-link nav-sublink" data-view="diet">Dieta y Horarios</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-group">
+                    <a href="#" class="nav-link nav-group-toggle" data-group="seguimiento">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        Seguimiento
+                        <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </a>
+                    <ul class="nav-submenu" data-submenu="seguimiento">
+                        <li><a href="#" class="nav-link nav-sublink" data-view="activity">Actividad</a></li>
+                        <li><a href="#" class="nav-link nav-sublink" data-view="stats">Estadisticas</a></li>
+                    </ul>
+                </li>
+
                 <li><a href="#" class="nav-link" data-view="scanner">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/><path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
                     Escanear
                 </a></li>
-                <li><a href="#" class="nav-link" data-view="activity">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                    Actividad
+
+                <li><a href="#" class="nav-link" data-view="profile">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Mi Perfil
                 </a></li>
-                <li><a href="#" class="nav-link" data-view="stats">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                    Estadisticas
-                </a></li>
+
+                <li class="nav-divider"></li>
+                <li class="dark-mode-toggle-item">
+                    <label class="toggle-label dark-mode-label">
+                        <span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;vertical-align:middle;margin-right:.5rem"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+                            Modo Oscuro
+                        </span>
+                        <input type="checkbox" id="darkModeToggle" onchange="app.toggleDarkMode(this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </li>
             </ul>
         </nav>
 
@@ -121,6 +150,22 @@
                     </div>
                 </div>
 
+                <div class="dashboard-extras">
+                    <div class="streak-card" id="streakCard">
+                        <div class="streak-flame">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c-2 4-6 6-6 11a6 6 0 0012 0c0-5-4-7-6-11z"/></svg>
+                        </div>
+                        <div class="streak-info">
+                            <span class="streak-value" id="streakCount">0</span>
+                            <span class="streak-label">dias de racha</span>
+                        </div>
+                    </div>
+                    <div class="weekly-comparison" id="weeklyComparison">
+                        <h3>Meta Semanal</h3>
+                        <div class="weekly-bars" id="weeklyBars"></div>
+                    </div>
+                </div>
+
                 <div class="dashboard-grid">
                     <div class="panel meals-panel">
                         <div class="panel-header">
@@ -156,6 +201,10 @@
             <!-- Add Food -->
             <section id="view-add-food" class="view">
                 <h2 class="view-title">Agregar Alimento</h2>
+                <div class="frequent-foods-section" id="frequentFoodsSection" style="display:none">
+                    <h3>Alimentos Frecuentes</h3>
+                    <div class="frequent-foods-list" id="frequentFoodsList"></div>
+                </div>
                 <div class="add-food-layout">
                     <div class="panel search-panel">
                         <div class="search-box">
@@ -164,17 +213,19 @@
                         </div>
                         <div class="food-categories">
                             <button class="cat-btn active" data-category="all">Todos</button>
-                            <button class="cat-btn" data-category="proteinas">Proteinas</button>
-                            <button class="cat-btn" data-category="carbohidratos">Carbohidratos</button>
+                            <button class="cat-btn" data-category="carnes_blancas">Carnes Blancas</button>
+                            <button class="cat-btn" data-category="carnes_rojas">Carnes Rojas</button>
+                            <button class="cat-btn" data-category="mariscos">Mariscos</button>
                             <button class="cat-btn" data-category="frutas">Frutas</button>
                             <button class="cat-btn" data-category="verduras">Verduras</button>
+                            <button class="cat-btn" data-category="cereales">Cereales</button>
+                            <button class="cat-btn" data-category="legumbres">Legumbres</button>
                             <button class="cat-btn" data-category="lacteos">Lacteos</button>
-                            <button class="cat-btn" data-category="grasas">Grasas</button>
+                            <button class="cat-btn" data-category="bebestibles">Bebestibles</button>
                             <button class="cat-btn" data-category="snacks">Snacks</button>
-                            <button class="cat-btn" data-category="bebidas">Bebidas</button>
+                            <button class="cat-btn" data-category="grasas">Grasas</button>
                             <button class="cat-btn" data-category="salsas">Salsas</button>
-                            <button class="cat-btn" data-category="comida_rapida">Comida Rapida</button>
-                            <button class="cat-btn" data-category="chileno">Chileno</button>
+                            <button class="cat-btn" data-category="platos_comunes">Platos Comunes</button>
                         </div>
                         <div id="foodDatabase" class="food-database"></div>
                     </div>
@@ -665,6 +716,16 @@
             <!-- Stats -->
             <section id="view-stats" class="view">
                 <h2 class="view-title">Estadisticas</h2>
+                <div class="stats-actions">
+                    <button class="btn btn-outline" onclick="app.exportToPDF()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        Exportar PDF
+                    </button>
+                    <button class="btn btn-outline" onclick="app.exportToWord()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        Exportar Word
+                    </button>
+                </div>
                 <div class="stats-grid">
                     <div class="panel">
                         <h3>Calorias - Ultimos 7 dias</h3>
@@ -677,6 +738,85 @@
                     <div class="panel">
                         <h3>Resumen general</h3>
                         <div id="generalStats" class="general-stats"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Photo AI -->
+            <section id="view-photo-ai" class="view">
+                <h2 class="view-title">Foto con IA</h2>
+                <div class="photo-ai-layout">
+                    <div class="panel photo-capture-panel">
+                        <div class="photo-instructions">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="scanner-icon-big">
+                                <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+                                <circle cx="12" cy="13" r="4"/>
+                            </svg>
+                            <p>Toma una foto de tu plato y te ayudaremos a identificar los alimentos y sus porciones.</p>
+                        </div>
+                        <div class="photo-preview-container" id="photoPreviewContainer" style="display:none">
+                            <img id="photoPreview" class="photo-preview-img" alt="Preview">
+                        </div>
+                        <input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none" onchange="app.onPhotoSelected(event)">
+                        <div class="photo-actions">
+                            <button class="btn btn-primary btn-block" onclick="document.getElementById('photoInput').click()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                Tomar Foto / Seleccionar Imagen
+                            </button>
+                        </div>
+                        <div id="photoAnalyzing" style="display:none" class="scanner-loading">
+                            <div class="spinner"></div>
+                            <p>Analizando imagen...</p>
+                        </div>
+                    </div>
+                    <div class="panel photo-results-panel" id="photoResultsPanel" style="display:none">
+                        <h3>Alimentos Detectados</h3>
+                        <p class="photo-results-hint">Selecciona los alimentos identificados para agregarlos a tu registro.</p>
+                        <div id="photoResults" class="photo-results-list"></div>
+                        <div class="photo-manual-add">
+                            <p>No encuentras un alimento? Buscalo manualmente:</p>
+                            <div class="search-box">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <input type="text" id="photoFoodSearch" placeholder="Buscar alimento..." oninput="app.filterPhotoFoods(this.value)">
+                            </div>
+                            <div id="photoFoodList" style="max-height:200px;overflow-y:auto"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recipes -->
+            <section id="view-recipes" class="view">
+                <h2 class="view-title">Recetas</h2>
+                <div class="recipes-layout">
+                    <div class="panel recipe-form-panel">
+                        <h3>Nueva Receta</h3>
+                        <form id="recipeForm" class="food-form" onsubmit="app.saveRecipe(event)">
+                            <div class="form-group">
+                                <label for="recipeName">Nombre de la receta</label>
+                                <input type="text" id="recipeName" required placeholder="Ej: Pollo al horno con verduras">
+                            </div>
+                            <div class="form-group">
+                                <label for="recipePortions">Porciones</label>
+                                <input type="number" id="recipePortions" required min="1" value="4" placeholder="4">
+                            </div>
+                            <div class="recipe-ingredients">
+                                <h4>Ingredientes</h4>
+                                <div id="recipeIngredientsList" class="recipe-ingredients-list"></div>
+                                <button type="button" class="btn btn-outline btn-block" onclick="app.addRecipeIngredient()" style="margin-top:.75rem">+ Agregar Ingrediente</button>
+                            </div>
+                            <div class="recipe-totals" id="recipeTotals" style="display:none">
+                                <h4>Valor Nutricional por Porcion</h4>
+                                <div class="recipe-totals-grid" id="recipeTotalsGrid"></div>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Guardar Receta</button>
+                        </form>
+                    </div>
+                    <div class="panel recipe-list-panel">
+                        <h3>Mis Recetas</h3>
+                        <div id="savedRecipesList" class="saved-recipes-list">
+                            <p class="empty-state">No tienes recetas guardadas. Crea tu primera receta.</p>
+                        </div>
                     </div>
                 </div>
             </section>

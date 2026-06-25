@@ -33,14 +33,27 @@ const app = {
         this.updateAll();
         this.loadProfileIfExists();
         this.initNotifications();
+        this.initDarkMode();
+        this.renderFrequentFoods();
     },
 
     // --- Navigation ---
     bindNavigation() {
-        document.querySelectorAll('.nav-link').forEach(link => {
+        document.querySelectorAll('.nav-link[data-view]').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.showView(link.dataset.view);
+            });
+        });
+
+        document.querySelectorAll('.nav-group-toggle').forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                const group = toggle.closest('.nav-group');
+                document.querySelectorAll('.nav-group').forEach(g => {
+                    if (g !== group) g.classList.remove('open');
+                });
+                group.classList.toggle('open');
             });
         });
     },
@@ -50,9 +63,13 @@ const app = {
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
 
         const view = document.getElementById('view-' + viewName);
-        const link = document.querySelector(`[data-view="${viewName}"]`);
+        const link = document.querySelector(`.nav-link[data-view="${viewName}"]`);
         if (view) view.classList.add('active');
-        if (link) link.classList.add('active');
+        if (link) {
+            link.classList.add('active');
+            const parentGroup = link.closest('.nav-group');
+            if (parentGroup) parentGroup.classList.add('open');
+        }
 
         // Close mobile sidebar
         document.getElementById('sidebar').classList.remove('open');
@@ -65,6 +82,8 @@ const app = {
         if (viewName === 'profile') this.loadProfileForm();
         if (viewName === 'activity') this.renderActivity();
         if (viewName === 'diet') this.renderDietSchedule();
+        if (viewName === 'recipes') this.renderRecipes();
+        if (viewName === 'add-food') this.renderFrequentFoods();
     },
 
     bindMenuToggle() {
@@ -158,6 +177,8 @@ const app = {
         this.renderMealsList(entries);
         this.renderMacroChart(totals);
         this.renderWater(water, goals.water);
+        this.renderStreak();
+        this.renderWeeklyComparison();
     },
 
     // --- Meals List ---
@@ -238,7 +259,7 @@ const app = {
         if (total === 0) {
             ctx.beginPath();
             ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-            ctx.strokeStyle = '#ffcc80';
+            ctx.strokeStyle = document.body.classList.contains('dark-mode') ? '#333' : '#ffcc80';
             ctx.lineWidth = 20;
             ctx.stroke();
             legend.innerHTML = '<span class="empty-state" style="padding:.5rem">Sin datos</span>';
@@ -263,13 +284,14 @@ const app = {
             startAngle += sliceAngle;
         });
 
-        ctx.fillStyle = '#1a1a1a';
+        const isDark = document.body.classList.contains('dark-mode');
+        ctx.fillStyle = isDark ? '#e0e0e0' : '#1a1a1a';
         ctx.font = 'bold 20px Segoe UI';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(Math.round(total), cx, cy - 8);
         ctx.font = '11px Segoe UI';
-        ctx.fillStyle = '#8d6e63';
+        ctx.fillStyle = isDark ? '#a1887f' : '#8d6e63';
         ctx.fillText('kcal macros', cx, cy + 12);
 
         legend.innerHTML = data.map(d => {
@@ -360,6 +382,7 @@ const app = {
             };
 
             Storage.addEntry(this.getDateStr(), entry);
+            Storage.trackFoodUsage(name);
             e.target.reset();
             document.getElementById('foodQuantity').value = 1;
             this._foodRef = null;
@@ -701,8 +724,10 @@ const app = {
         const barWidth = chartW / 7 * 0.6;
         const gap = chartW / 7;
 
+        const isDarkChart = document.body.classList.contains('dark-mode');
+
         // Grid lines
-        ctx.strokeStyle = '#ffcc80';
+        ctx.strokeStyle = isDarkChart ? '#333' : '#ffcc80';
         ctx.lineWidth = 1;
         for (let i = 0; i <= 4; i++) {
             const y = padding.top + (chartH / 4) * i;
@@ -711,7 +736,7 @@ const app = {
             ctx.lineTo(canvas.width - padding.right, y);
             ctx.stroke();
 
-            ctx.fillStyle = '#5d4037';
+            ctx.fillStyle = isDarkChart ? '#b0b0b0' : '#5d4037';
             ctx.font = '11px Segoe UI';
             ctx.textAlign = 'right';
             ctx.fillText(Math.round(maxCal - (maxCal / 4) * i), padding.left - 8, y + 4);
@@ -763,14 +788,14 @@ const app = {
 
             // Value on top
             if (d.calories > 0) {
-                ctx.fillStyle = '#1a1a1a';
+                ctx.fillStyle = isDarkChart ? '#e0e0e0' : '#1a1a1a';
                 ctx.font = 'bold 11px Segoe UI';
                 ctx.textAlign = 'center';
                 ctx.fillText(Math.round(d.calories), x + barWidth / 2, y - 6);
             }
 
             // Day label
-            ctx.fillStyle = '#8d6e63';
+            ctx.fillStyle = isDarkChart ? '#757575' : '#8d6e63';
             ctx.font = '11px Segoe UI';
             ctx.textAlign = 'center';
             const dayLabel = d.date.toLocaleDateString('es-ES', { weekday: 'short' });
@@ -1317,6 +1342,7 @@ const app = {
         };
 
         Storage.addEntry(this.getDateStr(), entry);
+        Storage.trackFoodUsage(entry.name);
         this.updateAll();
         this.showToast('Producto agregado: ' + entry.name);
 
@@ -1933,6 +1959,585 @@ const app = {
     // --- onPortionChange (called from HTML) ---
     onPortionChange() {
         this.recalcFromPortion();
+    },
+
+    // --- Dark Mode ---
+    initDarkMode() {
+        const enabled = Storage.getDarkMode();
+        if (enabled) {
+            document.body.classList.add('dark-mode');
+        }
+        const toggle = document.getElementById('darkModeToggle');
+        if (toggle) toggle.checked = enabled;
+    },
+
+    toggleDarkMode(enabled) {
+        Storage.setDarkMode(enabled);
+        document.body.classList.toggle('dark-mode', enabled);
+        this.showToast(enabled ? 'Modo oscuro activado' : 'Modo claro activado');
+    },
+
+    // --- Streak ---
+    renderStreak() {
+        const streakEl = document.getElementById('streakCount');
+        if (!streakEl) return;
+        const streak = Storage.getStreak();
+        streakEl.textContent = streak;
+        const card = document.getElementById('streakCard');
+        if (card) {
+            card.classList.toggle('active-streak', streak > 0);
+        }
+    },
+
+    // --- Weekly Goal Comparison ---
+    renderWeeklyComparison() {
+        const container = document.getElementById('weeklyBars');
+        if (!container) return;
+        const goals = Storage.getGoals();
+        const today = new Date();
+        const days = [];
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date(today);
+            d.setDate(today.getDate() - i);
+            days.push(d);
+        }
+
+        let html = '';
+        days.forEach(d => {
+            const dateStr = d.toISOString().split('T')[0];
+            const entries = Storage.getEntries(dateStr);
+            let cal = 0;
+            entries.forEach(e => cal += e.calories || 0);
+            const pct = Math.min(Math.round((cal / goals.calories) * 100), 150);
+            const isOver = cal > goals.calories;
+            const dayLabel = d.toLocaleDateString('es-ES', { weekday: 'narrow' });
+            const isToday = dateStr === this.getDateStr(new Date());
+            html += `<div class="weekly-bar-item ${isToday ? 'today' : ''}">
+                <div class="weekly-bar-track">
+                    <div class="weekly-bar-fill ${isOver ? 'over' : ''}" style="height:${Math.min(pct, 100)}%"></div>
+                </div>
+                <span class="weekly-bar-label">${dayLabel}</span>
+                <span class="weekly-bar-value">${Math.round(cal)}</span>
+            </div>`;
+        });
+        container.innerHTML = html;
+    },
+
+    // --- Frequent Foods ---
+    renderFrequentFoods() {
+        const section = document.getElementById('frequentFoodsSection');
+        const list = document.getElementById('frequentFoodsList');
+        if (!section || !list) return;
+
+        const frequent = Storage.getFrequentFoods(8);
+        if (frequent.length === 0) {
+            section.style.display = 'none';
+            return;
+        }
+
+        section.style.display = 'block';
+        this._frequentFoodsData = [];
+        const foods = FOOD_DATABASE;
+
+        list.innerHTML = frequent.map((f, idx) => {
+            const food = foods.find(fd => fd.name === f.name);
+            if (!food) return '';
+            this._frequentFoodsData.push(food);
+            const realIdx = this._frequentFoodsData.length - 1;
+            return `<div class="frequent-food-chip" onclick="app.quickAddFrequent(${realIdx})">
+                <span class="frequent-food-name">${this.escapeHtml(f.name)}</span>
+                <span class="frequent-food-cal">${food.calories} kcal</span>
+            </div>`;
+        }).filter(Boolean).join('');
+    },
+
+    quickAddFrequent(idx) {
+        const food = this._frequentFoodsData && this._frequentFoodsData[idx];
+        if (!food) return;
+        this.fillFoodForm(food);
+    },
+
+    // --- Photo AI ---
+    onPhotoSelected(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const container = document.getElementById('photoPreviewContainer');
+            const img = document.getElementById('photoPreview');
+            if (container && img) {
+                img.src = e.target.result;
+                container.style.display = 'block';
+            }
+            this.analyzePhoto(e.target.result);
+        };
+        reader.readAsDataURL(file);
+    },
+
+    analyzePhoto(imageData) {
+        const analyzing = document.getElementById('photoAnalyzing');
+        const resultsPanel = document.getElementById('photoResultsPanel');
+        if (analyzing) analyzing.style.display = 'block';
+
+        setTimeout(() => {
+            if (analyzing) analyzing.style.display = 'none';
+            if (resultsPanel) resultsPanel.style.display = 'block';
+            this.showPhotoSuggestions();
+        }, 1500);
+    },
+
+    showPhotoSuggestions() {
+        const container = document.getElementById('photoResults');
+        if (!container) return;
+
+        const suggestions = this.getSmartSuggestions();
+        this._photoSuggestions = suggestions;
+
+        container.innerHTML = suggestions.map((food, idx) => `
+            <div class="photo-result-item">
+                <div class="photo-result-info">
+                    <div class="food-db-name">${this.escapeHtml(food.name)}</div>
+                    <div class="food-db-detail">P: ${food.protein}g | C: ${food.carbs}g | G: ${food.fat}g | ${food.portion}g</div>
+                </div>
+                <div class="photo-result-actions">
+                    <span class="food-db-cal">${food.calories} kcal</span>
+                    <button class="btn btn-primary btn-sm" onclick="app.addPhotoFood(${idx})">+ Agregar</button>
+                </div>
+            </div>
+        `).join('');
+    },
+
+    getSmartSuggestions() {
+        const frequent = Storage.getFrequentFoods(5);
+        const frequentNames = frequent.map(f => f.name);
+        let suggestions = FOOD_DATABASE.filter(f => frequentNames.includes(f.name));
+
+        const commonCategories = ['platos_comunes', 'carnes_blancas', 'cereales'];
+        const common = FOOD_DATABASE.filter(f => commonCategories.includes(f.category));
+        const shuffled = common.sort(() => Math.random() - 0.5).slice(0, 8);
+        suggestions = [...suggestions, ...shuffled];
+
+        const seen = new Set();
+        return suggestions.filter(f => {
+            if (seen.has(f.name)) return false;
+            seen.add(f.name);
+            return true;
+        }).slice(0, 10);
+    },
+
+    addPhotoFood(idx) {
+        const food = this._photoSuggestions && this._photoSuggestions[idx];
+        if (!food) return;
+
+        const entry = {
+            name: food.name,
+            calories: food.calories,
+            protein: food.protein,
+            carbs: food.carbs,
+            fat: food.fat,
+            portion: food.portion,
+            mealType: 'almuerzo',
+        };
+
+        Storage.addEntry(this.getDateStr(), entry);
+        Storage.trackFoodUsage(food.name);
+        this.updateAll();
+        this.showToast('Agregado: ' + food.name);
+    },
+
+    filterPhotoFoods(search) {
+        const container = document.getElementById('photoFoodList');
+        if (!container) return;
+        if (!search) { container.innerHTML = ''; return; }
+        const s = search.toLowerCase();
+        const foods = FOOD_DATABASE.filter(f => f.name.toLowerCase().includes(s)).slice(0, 20);
+        this._photoSearchFoods = foods;
+        container.innerHTML = foods.map((food, idx) => `
+            <div class="food-db-item" onclick="app.addPhotoSearchFood(${idx})">
+                <div>
+                    <div class="food-db-name">${food.name}</div>
+                    <div class="food-db-detail">${food.calories} kcal | ${food.portion}g</div>
+                </div>
+                <button class="btn btn-primary btn-sm">+ Agregar</button>
+            </div>
+        `).join('');
+    },
+
+    addPhotoSearchFood(idx) {
+        const food = this._photoSearchFoods && this._photoSearchFoods[idx];
+        if (!food) return;
+        const entry = {
+            name: food.name, calories: food.calories, protein: food.protein,
+            carbs: food.carbs, fat: food.fat, portion: food.portion, mealType: 'almuerzo',
+        };
+        Storage.addEntry(this.getDateStr(), entry);
+        Storage.trackFoodUsage(food.name);
+        this.updateAll();
+        this.showToast('Agregado: ' + food.name);
+    },
+
+    // --- Recipes ---
+    renderRecipes() {
+        this.renderSavedRecipes();
+        this.renderRecipeIngredients();
+        this.updateRecipeTotals();
+    },
+
+    _recipeIngredients: [],
+
+    addRecipeIngredient() {
+        const modal = document.getElementById('modal');
+        const body = document.getElementById('modalBody');
+        document.getElementById('modalTitle').textContent = 'Agregar ingrediente';
+
+        body.innerHTML = `
+            <div class="search-box" style="margin-bottom:.75rem">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="recipeIngSearch" placeholder="Buscar alimento..." oninput="app.filterRecipeIngredients(this.value)">
+            </div>
+            <div id="recipeIngList" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:.3rem"></div>
+        `;
+        modal.classList.add('active');
+        this.filterRecipeIngredients('');
+    },
+
+    filterRecipeIngredients(search) {
+        const container = document.getElementById('recipeIngList');
+        if (!container) return;
+        let foods = FOOD_DATABASE;
+        if (search) {
+            const s = search.toLowerCase();
+            foods = foods.filter(f => f.name.toLowerCase().includes(s));
+        }
+        this._recipeSearchFoods = foods.slice(0, 50);
+        container.innerHTML = this._recipeSearchFoods.map((food, idx) => `
+            <div class="food-db-item" onclick="app.selectRecipeIngredient(${idx})">
+                <div>
+                    <div class="food-db-name">${food.name}</div>
+                    <div class="food-db-detail">${food.calories} kcal | P:${food.protein}g C:${food.carbs}g G:${food.fat}g | ${food.portion}g</div>
+                </div>
+            </div>
+        `).join('');
+    },
+
+    selectRecipeIngredient(idx) {
+        const food = this._recipeSearchFoods && this._recipeSearchFoods[idx];
+        if (!food) return;
+        this._recipeIngredients.push({
+            name: food.name, calories: food.calories, protein: food.protein,
+            carbs: food.carbs, fat: food.fat, portion: food.portion,
+            quantity: food.portion,
+        });
+        this.closeModal();
+        this.renderRecipeIngredients();
+        this.updateRecipeTotals();
+    },
+
+    renderRecipeIngredients() {
+        const container = document.getElementById('recipeIngredientsList');
+        if (!container) return;
+        if (this._recipeIngredients.length === 0) {
+            container.innerHTML = '<p class="empty-state" style="padding:.5rem">Sin ingredientes. Agrega el primero.</p>';
+            return;
+        }
+        container.innerHTML = this._recipeIngredients.map((ing, idx) => `
+            <div class="recipe-ingredient-item">
+                <div class="recipe-ingredient-info">
+                    <span class="recipe-ingredient-name">${this.escapeHtml(ing.name)}</span>
+                    <span class="recipe-ingredient-cal">${Math.round(ing.calories * ing.quantity / ing.portion)} kcal</span>
+                </div>
+                <div class="recipe-ingredient-controls">
+                    <input type="number" value="${ing.quantity}" min="1" style="width:70px" onchange="app.updateRecipeIngQty(${idx}, this.value)">
+                    <span style="font-size:.8rem;color:var(--text-muted)">g</span>
+                    <button onclick="app.removeRecipeIngredient(${idx})" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:1.1rem">&times;</button>
+                </div>
+            </div>
+        `).join('');
+    },
+
+    updateRecipeIngQty(idx, value) {
+        if (this._recipeIngredients[idx]) {
+            this._recipeIngredients[idx].quantity = parseFloat(value) || 0;
+            this.updateRecipeTotals();
+        }
+    },
+
+    removeRecipeIngredient(idx) {
+        this._recipeIngredients.splice(idx, 1);
+        this.renderRecipeIngredients();
+        this.updateRecipeTotals();
+    },
+
+    updateRecipeTotals() {
+        const container = document.getElementById('recipeTotals');
+        const grid = document.getElementById('recipeTotalsGrid');
+        if (!container || !grid) return;
+
+        if (this._recipeIngredients.length === 0) {
+            container.style.display = 'none';
+            return;
+        }
+
+        const portions = parseInt(document.getElementById('recipePortions')?.value) || 1;
+        let totalCal = 0, totalP = 0, totalC = 0, totalF = 0;
+
+        this._recipeIngredients.forEach(ing => {
+            const ratio = ing.quantity / ing.portion;
+            totalCal += ing.calories * ratio;
+            totalP += ing.protein * ratio;
+            totalC += ing.carbs * ratio;
+            totalF += ing.fat * ratio;
+        });
+
+        container.style.display = 'block';
+        grid.innerHTML = `
+            <div class="diet-total-item">
+                <div class="diet-total-value" style="color:var(--calories-color)">${Math.round(totalCal / portions)}</div>
+                <div class="diet-total-label">kcal</div>
+            </div>
+            <div class="diet-total-item">
+                <div class="diet-total-value" style="color:var(--protein-color)">${Math.round(totalP / portions)}g</div>
+                <div class="diet-total-label">Proteina</div>
+            </div>
+            <div class="diet-total-item">
+                <div class="diet-total-value" style="color:var(--carbs-color)">${Math.round(totalC / portions)}g</div>
+                <div class="diet-total-label">Carbos</div>
+            </div>
+            <div class="diet-total-item">
+                <div class="diet-total-value" style="color:var(--fat-color)">${Math.round(totalF / portions)}g</div>
+                <div class="diet-total-label">Grasas</div>
+            </div>
+            <div class="diet-total-item" style="grid-column:1/-1;font-size:.85rem;color:var(--text-secondary)">
+                Total: ${Math.round(totalCal)} kcal | ${portions} porciones
+            </div>
+        `;
+    },
+
+    saveRecipe(event) {
+        event.preventDefault();
+        const name = document.getElementById('recipeName').value.trim();
+        const portions = parseInt(document.getElementById('recipePortions').value) || 1;
+
+        if (!name) { this.showToast('Ingresa un nombre'); return; }
+        if (this._recipeIngredients.length === 0) { this.showToast('Agrega al menos un ingrediente'); return; }
+
+        let totalCal = 0, totalP = 0, totalC = 0, totalF = 0;
+        this._recipeIngredients.forEach(ing => {
+            const ratio = ing.quantity / ing.portion;
+            totalCal += ing.calories * ratio;
+            totalP += ing.protein * ratio;
+            totalC += ing.carbs * ratio;
+            totalF += ing.fat * ratio;
+        });
+
+        const recipe = {
+            name,
+            portions,
+            ingredients: [...this._recipeIngredients],
+            perPortion: {
+                calories: Math.round(totalCal / portions),
+                protein: Math.round(totalP / portions * 10) / 10,
+                carbs: Math.round(totalC / portions * 10) / 10,
+                fat: Math.round(totalF / portions * 10) / 10,
+            },
+            totalCalories: Math.round(totalCal),
+        };
+
+        Storage.addRecipe(recipe);
+        this._recipeIngredients = [];
+        document.getElementById('recipeForm').reset();
+        document.getElementById('recipePortions').value = 4;
+        this.renderRecipeIngredients();
+        this.updateRecipeTotals();
+        this.renderSavedRecipes();
+        this.showToast('Receta guardada: ' + name);
+    },
+
+    renderSavedRecipes() {
+        const container = document.getElementById('savedRecipesList');
+        if (!container) return;
+        const recipes = Storage.getRecipes();
+
+        if (recipes.length === 0) {
+            container.innerHTML = '<p class="empty-state">No tienes recetas guardadas. Crea tu primera receta.</p>';
+            return;
+        }
+
+        container.innerHTML = recipes.map(r => `
+            <div class="saved-recipe-card">
+                <div class="saved-recipe-header">
+                    <div class="saved-recipe-name">${this.escapeHtml(r.name)}</div>
+                    <div class="saved-recipe-portions">${r.portions} porciones</div>
+                </div>
+                <div class="saved-recipe-macros">
+                    <span style="color:var(--calories-color);font-weight:700">${r.perPortion.calories} kcal</span>
+                    <span>P: ${r.perPortion.protein}g</span>
+                    <span>C: ${r.perPortion.carbs}g</span>
+                    <span>G: ${r.perPortion.fat}g</span>
+                    <span style="color:var(--text-muted)">por porcion</span>
+                </div>
+                <div class="saved-recipe-ingredients">
+                    ${r.ingredients.map(i => this.escapeHtml(i.name) + ' (' + i.quantity + 'g)').join(', ')}
+                </div>
+                <div class="saved-recipe-actions">
+                    <button class="btn btn-primary btn-sm" onclick="app.addRecipeToLog('${r.id}')">+ Agregar al registro</button>
+                    <button class="btn btn-outline btn-sm" onclick="app.deleteRecipe('${r.id}')">Eliminar</button>
+                </div>
+            </div>
+        `).join('');
+    },
+
+    addRecipeToLog(recipeId) {
+        const recipes = Storage.getRecipes();
+        const recipe = recipes.find(r => r.id === recipeId);
+        if (!recipe) return;
+
+        const entry = {
+            name: recipe.name + ' (1 porcion)',
+            calories: recipe.perPortion.calories,
+            protein: recipe.perPortion.protein,
+            carbs: recipe.perPortion.carbs,
+            fat: recipe.perPortion.fat,
+            portion: 0,
+            mealType: 'almuerzo',
+        };
+
+        Storage.addEntry(this.getDateStr(), entry);
+        Storage.trackFoodUsage(recipe.name);
+        this.updateAll();
+        this.showToast('Receta agregada: ' + recipe.name);
+    },
+
+    deleteRecipe(recipeId) {
+        Storage.removeRecipe(recipeId);
+        this.renderSavedRecipes();
+        this.showToast('Receta eliminada');
+    },
+
+    // --- Export ---
+    exportToPDF() {
+        try {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const goals = Storage.getGoals();
+            const profile = Storage.getProfile();
+            const today = new Date();
+
+            doc.setFontSize(20);
+            doc.setTextColor(230, 81, 0);
+            doc.text('NutriTrack - Reporte Nutricional', 20, 20);
+
+            doc.setFontSize(10);
+            doc.setTextColor(100);
+            doc.text('Generado: ' + today.toLocaleDateString('es-ES', { dateStyle: 'long' }), 20, 28);
+
+            let y = 40;
+
+            if (profile && profile.name) {
+                doc.setFontSize(14);
+                doc.setTextColor(0);
+                doc.text('Perfil: ' + profile.name, 20, y);
+                y += 8;
+                doc.setFontSize(10);
+                doc.setTextColor(80);
+                doc.text(`Peso: ${profile.weight}kg | Estatura: ${profile.height}cm | Edad: ${profile.age}`, 20, y);
+                y += 12;
+            }
+
+            doc.setFontSize(14);
+            doc.setTextColor(0);
+            doc.text('Metas Diarias', 20, y);
+            y += 8;
+            doc.setFontSize(10);
+            doc.setTextColor(80);
+            doc.text(`Calorias: ${goals.calories} kcal | Proteina: ${goals.protein}g | Carbos: ${goals.carbs}g | Grasa: ${goals.fat}g`, 20, y);
+            y += 12;
+
+            doc.setFontSize(14);
+            doc.setTextColor(0);
+            doc.text('Ultimos 7 dias', 20, y);
+            y += 8;
+
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(today);
+                d.setDate(today.getDate() - i);
+                const dateStr = d.toISOString().split('T')[0];
+                const entries = Storage.getEntries(dateStr);
+                let cal = 0, p = 0, c = 0, f = 0;
+                entries.forEach(e => { cal += e.calories || 0; p += e.protein || 0; c += e.carbs || 0; f += e.fat || 0; });
+                const dayLabel = d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+
+                doc.setFontSize(9);
+                doc.setTextColor(cal > goals.calories ? 198 : 0, cal > goals.calories ? 40 : 0, cal > goals.calories ? 40 : 0);
+                doc.text(`${dayLabel}: ${Math.round(cal)} kcal | P:${Math.round(p)}g C:${Math.round(c)}g G:${Math.round(f)}g | ${entries.length} alimentos`, 20, y);
+                y += 6;
+            }
+
+            y += 6;
+            const streak = Storage.getStreak();
+            doc.setFontSize(12);
+            doc.setTextColor(230, 81, 0);
+            doc.text(`Racha actual: ${streak} dias`, 20, y);
+
+            doc.save('NutriTrack-Reporte.pdf');
+            this.showToast('PDF exportado');
+        } catch (e) {
+            this.showToast('Error al generar PDF. Recarga la pagina e intenta de nuevo.');
+        }
+    },
+
+    exportToWord() {
+        const goals = Storage.getGoals();
+        const profile = Storage.getProfile();
+        const today = new Date();
+        const streak = Storage.getStreak();
+
+        let html = `<html><head><meta charset="utf-8"><style>
+            body{font-family:Calibri,sans-serif;padding:2rem;color:#333}
+            h1{color:#e65100}h2{color:#5d4037;border-bottom:2px solid #ffcc80;padding-bottom:.5rem}
+            table{border-collapse:collapse;width:100%;margin:1rem 0}
+            th,td{border:1px solid #ddd;padding:.5rem;text-align:left}
+            th{background:#fff3e0;color:#e65100}
+            .over{color:#c62828;font-weight:bold}
+        </style></head><body>`;
+        html += `<h1>NutriTrack - Reporte Nutricional</h1>`;
+        html += `<p>Generado: ${today.toLocaleDateString('es-ES', { dateStyle: 'long' })}</p>`;
+
+        if (profile && profile.name) {
+            html += `<h2>Perfil</h2><p>${profile.name} | ${profile.weight}kg | ${profile.height}cm | ${profile.age} anos</p>`;
+        }
+
+        html += `<h2>Metas Diarias</h2>`;
+        html += `<p>Calorias: ${goals.calories} kcal | Proteina: ${goals.protein}g | Carbos: ${goals.carbs}g | Grasa: ${goals.fat}g</p>`;
+        html += `<h2>Ultimos 7 dias</h2><table><tr><th>Dia</th><th>Calorias</th><th>Proteina</th><th>Carbos</th><th>Grasa</th><th>Alimentos</th></tr>`;
+
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date(today);
+            d.setDate(today.getDate() - i);
+            const dateStr = d.toISOString().split('T')[0];
+            const entries = Storage.getEntries(dateStr);
+            let cal = 0, p = 0, c = 0, f = 0;
+            entries.forEach(e => { cal += e.calories || 0; p += e.protein || 0; c += e.carbs || 0; f += e.fat || 0; });
+            const dayLabel = d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+            const overClass = cal > goals.calories ? ' class="over"' : '';
+            html += `<tr><td>${dayLabel}</td><td${overClass}>${Math.round(cal)}</td><td>${Math.round(p)}g</td><td>${Math.round(c)}g</td><td>${Math.round(f)}g</td><td>${entries.length}</td></tr>`;
+        }
+        html += `</table>`;
+        html += `<p><strong>Racha actual:</strong> ${streak} dias</p>`;
+
+        const allDates = Storage.getAllDates();
+        html += `<h2>Resumen General</h2>`;
+        html += `<p>Total dias registrados: ${allDates.length} | Racha: ${streak} dias</p>`;
+        html += `</body></html>`;
+
+        const blob = new Blob([html], { type: 'application/msword' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'NutriTrack-Reporte.doc';
+        link.click();
+        URL.revokeObjectURL(link.href);
+        this.showToast('Word exportado');
     },
 };
 

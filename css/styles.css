@@ -98,6 +98,73 @@ body {
     border-left-color: var(--primary);
 }
 
+/* Nav groups & submenus */
+.nav-group {
+    list-style: none;
+}
+
+.nav-group-toggle {
+    position: relative;
+    justify-content: flex-start;
+}
+
+.nav-chevron {
+    width: 16px;
+    height: 16px;
+    margin-left: auto;
+    flex-shrink: 0;
+    transition: transform .2s ease;
+}
+
+.nav-group.open > .nav-group-toggle .nav-chevron {
+    transform: rotate(180deg);
+}
+
+.nav-group.open > .nav-group-toggle {
+    color: var(--primary);
+}
+
+.nav-submenu {
+    list-style: none;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .3s ease;
+}
+
+.nav-group.open > .nav-submenu {
+    max-height: 300px;
+}
+
+.nav-sublink {
+    padding: .6rem 1.5rem .6rem 3.2rem !important;
+    font-size: .85rem !important;
+    border-left: 3px solid transparent;
+    position: relative;
+}
+
+.nav-sublink::before {
+    content: '';
+    position: absolute;
+    left: 1.9rem;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    transform: translateY(-50%);
+    transition: background var(--transition);
+}
+
+.nav-sublink.active::before,
+.nav-sublink:hover::before {
+    background: var(--primary);
+}
+
+.nav-sublink.active {
+    border-left-color: transparent;
+    background: rgba(230, 81, 0, .06);
+}
+
 /* Sidebar overlay (mobile) */
 .sidebar-overlay {
     display: none;
@@ -2216,5 +2283,549 @@ body {
 
     .toggle-label {
         font-size: .85rem;
+    }
+}
+
+/* ==================== DARK MODE ==================== */
+body.dark-mode {
+    --primary: #ff8a50;
+    --primary-dark: #e65100;
+    --primary-light: #3e2723;
+    --bg: #121212;
+    --bg-card: #1e1e1e;
+    --bg-card-hover: #2a2a2a;
+    --bg-input: #2a2a2a;
+    --text: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --text-muted: #757575;
+    --border: #333333;
+    --danger: #ef5350;
+    --warning: #ff9800;
+    --info: #42a5f5;
+    --protein-color: #ef5350;
+    --carbs-color: #ffb74d;
+    --fat-color: #a1887f;
+    --calories-color: #ff8a50;
+    --shadow: 0 4px 6px -1px rgba(0,0,0,.3);
+}
+
+body.dark-mode .sidebar {
+    background: #1a1a1a;
+    border-right-color: #333;
+}
+
+body.dark-mode .top-bar {
+    background: #121212;
+}
+
+body.dark-mode .toast {
+    background: #2a2a2a;
+    border-color: var(--primary);
+    color: #e0e0e0;
+}
+
+body.dark-mode .modal {
+    background: #1e1e1e;
+    border-color: #333;
+}
+
+body.dark-mode .food-db-item:hover {
+    background: #333;
+}
+
+body.dark-mode .bmi-marker {
+    background: #333;
+    border-color: #1e1e1e;
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+    background: #555;
+}
+
+body.dark-mode .scanner-container {
+    background: #000;
+}
+
+body.dark-mode canvas {
+    filter: none;
+}
+
+/* Dark mode toggle in sidebar */
+.nav-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1rem 1.5rem;
+    list-style: none;
+}
+
+.dark-mode-toggle-item {
+    padding: .5rem 1.5rem;
+    list-style: none;
+}
+
+.dark-mode-label {
+    font-size: .9rem;
+}
+
+/* ==================== STREAK CARD ==================== */
+.dashboard-extras {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.streak-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all var(--transition);
+}
+
+.streak-card.active-streak {
+    border-color: var(--primary);
+    background: rgba(230, 81, 0, .06);
+}
+
+.streak-flame svg {
+    width: 36px;
+    height: 36px;
+    color: var(--primary);
+}
+
+.streak-card.active-streak .streak-flame svg {
+    color: #e65100;
+    filter: drop-shadow(0 0 6px rgba(230, 81, 0, .4));
+}
+
+.streak-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary);
+    line-height: 1;
+}
+
+.streak-label {
+    font-size: .8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.streak-info {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ==================== WEEKLY COMPARISON ==================== */
+.weekly-comparison {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.5rem;
+}
+
+.weekly-comparison h3 {
+    font-size: .9rem;
+    color: var(--text-secondary);
+    margin-bottom: .75rem;
+}
+
+.weekly-bars {
+    display: flex;
+    gap: .5rem;
+    align-items: flex-end;
+    height: 80px;
+}
+
+.weekly-bar-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .2rem;
+}
+
+.weekly-bar-item.today .weekly-bar-label {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.weekly-bar-track {
+    width: 100%;
+    height: 50px;
+    background: var(--bg);
+    border-radius: 4px 4px 0 0;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+}
+
+.weekly-bar-fill {
+    width: 100%;
+    background: var(--primary);
+    border-radius: 4px 4px 0 0;
+    transition: height .5s ease;
+    min-height: 2px;
+}
+
+.weekly-bar-fill.over {
+    background: var(--danger);
+}
+
+.weekly-bar-label {
+    font-size: .7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.weekly-bar-value {
+    font-size: .6rem;
+    color: var(--text-muted);
+    display: none;
+}
+
+/* ==================== FREQUENT FOODS ==================== */
+.frequent-foods-section {
+    margin-bottom: 1.5rem;
+}
+
+.frequent-foods-section h3 {
+    font-size: 1rem;
+    margin-bottom: .75rem;
+    color: var(--text-secondary);
+}
+
+.frequent-foods-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.frequent-food-chip {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.frequent-food-chip:hover {
+    border-color: var(--primary);
+    background: rgba(230, 81, 0, .08);
+    transform: translateY(-1px);
+}
+
+.frequent-food-name {
+    font-size: .85rem;
+    font-weight: 600;
+}
+
+.frequent-food-cal {
+    font-size: .75rem;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* ==================== PHOTO AI ==================== */
+.photo-ai-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.photo-instructions {
+    text-align: center;
+    padding: 1rem 0;
+    color: var(--text-secondary);
+}
+
+.photo-instructions p {
+    font-size: .9rem;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.photo-preview-container {
+    margin: 1rem 0;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 2px solid var(--border);
+}
+
+.photo-preview-img {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    display: block;
+}
+
+.photo-actions {
+    margin-top: 1rem;
+}
+
+.photo-results-hint {
+    font-size: .85rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.photo-results-list {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    margin-bottom: 1.5rem;
+}
+
+.photo-result-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .75rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    gap: .75rem;
+}
+
+.photo-result-info {
+    flex: 1;
+}
+
+.photo-result-actions {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+
+.photo-manual-add {
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.photo-manual-add p {
+    font-size: .85rem;
+    color: var(--text-muted);
+    margin-bottom: .75rem;
+}
+
+/* ==================== RECIPES ==================== */
+.recipes-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.recipe-ingredients h4 {
+    font-size: .95rem;
+    margin-bottom: .5rem;
+    color: var(--text-secondary);
+}
+
+.recipe-ingredients-list {
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+}
+
+.recipe-ingredient-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .6rem .75rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    gap: .5rem;
+}
+
+.recipe-ingredient-info {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.recipe-ingredient-name {
+    font-size: .9rem;
+    font-weight: 500;
+}
+
+.recipe-ingredient-cal {
+    font-size: .8rem;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.recipe-ingredient-controls {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+.recipe-ingredient-controls input {
+    padding: .3rem .5rem;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: .85rem;
+    text-align: center;
+    outline: none;
+}
+
+.recipe-ingredient-controls input:focus {
+    border-color: var(--primary);
+}
+
+.recipe-totals {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--primary);
+}
+
+.recipe-totals h4 {
+    font-size: .85rem;
+    color: var(--text-secondary);
+    margin-bottom: .75rem;
+}
+
+.recipe-totals-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: .5rem;
+    text-align: center;
+}
+
+.saved-recipes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.saved-recipe-card {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    border: 1px solid var(--border);
+}
+
+.saved-recipe-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: .5rem;
+}
+
+.saved-recipe-name {
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.saved-recipe-portions {
+    font-size: .8rem;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    padding: .2rem .6rem;
+    border-radius: 10px;
+}
+
+.saved-recipe-macros {
+    display: flex;
+    gap: .75rem;
+    font-size: .85rem;
+    color: var(--text-secondary);
+    margin-bottom: .5rem;
+    flex-wrap: wrap;
+}
+
+.saved-recipe-ingredients {
+    font-size: .8rem;
+    color: var(--text-muted);
+    margin-bottom: .75rem;
+    line-height: 1.4;
+}
+
+.saved-recipe-actions {
+    display: flex;
+    gap: .5rem;
+}
+
+/* ==================== EXPORT BUTTONS ==================== */
+.stats-actions {
+    display: flex;
+    gap: .75rem;
+    margin-bottom: 1.5rem;
+}
+
+/* ==================== RESPONSIVE NEW FEATURES ==================== */
+@media (max-width: 1024px) {
+    .photo-ai-layout,
+    .recipes-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-extras {
+        grid-template-columns: 1fr;
+    }
+
+    .recipe-totals-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stats-actions {
+        flex-direction: column;
+    }
+
+    .stats-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .frequent-food-chip {
+        padding: .4rem .75rem;
+    }
+
+    .frequent-food-name {
+        font-size: .8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .weekly-bars {
+        height: 60px;
+    }
+
+    .weekly-bar-track {
+        height: 35px;
+    }
+
+    .streak-value {
+        font-size: 1.5rem;
+    }
+
+    .streak-flame svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    .photo-preview-img {
+        max-height: 200px;
     }
 }
